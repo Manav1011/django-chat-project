@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+{% load bootstrap5 %}
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Page</title>
+    {% include 'links&cdns.html' %}
+</head>
+<body>
+    {% load i18n %}
+    <div class="container text-center mt-5 card  border shadow-lg p-3 mb-5 rounded bg-gradient">
+      <div class="card-header">
+        {% trans "Sign Up" %}
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">Already have an account? Then please <a href="{% url 'account_login' %}">sign in</a>.</h5>
+        <form class="signup card-text" id="signup_form" method="post" action="{% url 'account_signup' %}">
+          {% csrf_token %}
+          {%bootstrap_form form%}
+          {% if redirect_field_value %}
+          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+          {% endif %}
+          <button type="submit" class='btn btn-primary'>{% trans "Sign Up" %} &raquo;</button>
+        </form>
+      </div>
+      
+    </div>
+    
+  
+  
+    
+</body>
+</html>

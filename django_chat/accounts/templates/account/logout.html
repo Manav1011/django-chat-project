@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load bootstrap5 %}
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% load i18n %}
+
+{% block content %}
+
+<div class="container text-center mt-5 card  border shadow-lg p-3 mb-5 rounded bg-gradient">
+    <div class="card-header">
+        Logout
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{% trans 'Are you sure you want to sign out?' %}</h5>
+        <form method="post" class='card-text' action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+            {% endif %}
+            <button type="submit" class='btn btn-danger'>{% trans 'Sign Out' %}</button>
+          </form>
+    </div>
+
+
+{% endblock %}
