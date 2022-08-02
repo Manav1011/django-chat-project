@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap5',
     'accounts',
+    'chats',
     'allauth',
     'allauth.account',
     'allauth.socialaccount'
