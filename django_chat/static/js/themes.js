@@ -6,6 +6,10 @@ $(document).ready(function(){
             $('.navbar').addClass('navbar-dark')
             $('body').addClass('bg-dark text-light')
             $('.chat-section').removeClass('border-dark')
+            $('.reverse-other-components').css({
+                'background-color':'white',
+                'color':'black'
+            })
         const boxes = document.querySelectorAll('.other-components');
             for (const box of boxes) {
                 box.style.cssText=`
@@ -19,6 +23,10 @@ $(document).ready(function(){
             $('.navbar').removeClass('navbar-dark')
             $('.chat-section').addClass('border-dark')
             const boxes = document.querySelectorAll('.other-components');
+            $('.reverse-other-components').css({
+                'background-color':'black',
+                'color':'white'
+            })
             for (const box of boxes) {
                 box.style.cssText=`
                 background-color:white;
@@ -37,6 +45,10 @@ $(document).ready(function(){
             $('body').addClass('bg-dark text-light')
             $('.navbar').addClass('navbar-dark')
             $('.chat-section').removeClass('border-dark')
+            $('.reverse-other-components').css({
+                'background-color':'white',
+                'color':'black'
+            })
             const boxes = document.querySelectorAll('.other-components');
             for (const box of boxes) {
                 box.style.cssText=`
@@ -53,6 +65,10 @@ $(document).ready(function(){
             theme_btn.text(`Theme: ${localStorage.getItem('theme')}`)
             theme_btn.text(`Theme: ${localStorage.getItem('theme')}`)
             const boxes = document.querySelectorAll('.other-components');
+            $('.reverse-other-components').css({
+                'background-color':'black',
+                'color':'white'
+            })
             for (const box of boxes) {
                 box.style.cssText=`
                 background-color:white;

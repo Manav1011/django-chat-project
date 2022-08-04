@@ -1,17 +1,23 @@
 from django.shortcuts import render
 from .models import PersonalChatRoom
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 import string
+from django.shortcuts import redirect
+from django.urls import reverse
 import random
 from django.contrib.auth.models import User
 # Create your views here.
 
-def create_personal_room(request):
-    N=7
-    Group_id = ''.join(random.choices(string.ascii_uppercase +string.digits, k=N))
-    user_id=request.GET.get('id')
+def create_personal_room(request,pk):
+    user_id=pk
     current_user=request.user
     chat_partner=User.objects.get(id=user_id)   
-    print(PersonalChatRoom.objects.new_or_get(request,chat_partner))
+    RoomObject=PersonalChatRoom.objects.new_or_get(request,chat_partner)
+    context={
+        'chat_partner':chat_partner,
+        'RoomObject':RoomObject,
+        
+    }
+    return render(request,'chats/personal_chat_room.html',context)
     
-    return JsonResponse({'chat_parner':chat_partner.username,'current_user':current_user.username})
+

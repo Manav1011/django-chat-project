@@ -8,15 +8,22 @@
 </div>
 </div>
 <hr style="width:100%", size="3", color=white> 
+{% comment %} {% for i in RoomObjects %}
+  {{i.chats.last}}
+{% endfor %} {% endcomment %}
     <div class="card MainContent" style="width: 100%;">
-    {% for i in parners %}
+    {% for i,k in combined %}
+    {% for j in i %}
+    <a href="{% url 'chats:create_personal_room' pk=j.id %}" class='btn p-0'>
+      {% endfor %}
     <div class="card-header bg-secondary bg-gradient">           
       {{i | get_username}}
         <span class="bg-danger rounded px-2" id='{{i.reciever}}' style='float:right;'></span>
       </div>
-      <ul class="list-group list-group-flush bg-success border-bottom border-5">
-        <li class="ms-2 list-group-item mb-2"><span id="{{i.reciever}}chatbox"></span> .....</li>        
-      </ul>
+    </a>
+    <ul class="list-group list-group-flush bg-success border-bottom border-5">
+      <li class="ms-2 list-group-item mb-2">{{k.chats.last}}</span></li>        
+    </ul>
       {% empty %}      
       <div class="card-header bg-secondary bg-gradient">
       </div>

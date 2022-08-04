@@ -52,11 +52,10 @@ class PersonalChatRoomManager(models.Manager):
                     room_obj=i
                     print(room_obj)
                     return room_obj
-                else:
-                    room_obj=PersonalChatRoom.objects.create()        
-                    room_obj.members.add(current_user)
-                    room_obj.members.add(chat_partner)
-                    return room_obj
+            room_obj=PersonalChatRoom.objects.create()        
+            room_obj.members.add(current_user)
+            room_obj.members.add(chat_partner)
+            return room_obj
         else:
             room_obj=PersonalChatRoom.objects.create()        
             room_obj.members.add(current_user)

@@ -2,10 +2,12 @@
 {% block content %}
     <div class="card MainContent mt-2" style="width: 100%;">
     {% for i in qs %}
-    <div class="btn card-header bg-secondary bg-gradient" id='{{i.id}}'>           
+    <a href="{% url 'chats:create_personal_room' pk=i.id %}" class='btn'>
+    <div class="card-header bg-secondary bg-gradient">           
       {{i}}
       </div>
-      <script>
+    </a>
+      {% comment %} <script>
         $('document').ready(function(){
             var user=$('#{{i.id}}')
             user.click(function(event){
@@ -26,7 +28,7 @@
                 })
             })
         });
-    </script>
+    </script> {% endcomment %}
       <ul class="list-group list-group-flush bg-success border-bottom border-5">
         <li class="ms-2 list-group-item mb-2"><span id="{{i.reciever}}chatbox"></span> .....</li>        
       </ul>
