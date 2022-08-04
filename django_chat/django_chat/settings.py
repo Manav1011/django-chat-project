@@ -47,8 +47,18 @@ ACCOUNT_EMAIL_REQUIRED=True
 ACCOUNT_EMAIL_VERIFICATION='mandatory'
 ACCOUNT_AUTHENTICATION_METHOD=('username_email')
 
+# ASGI_APPLICATION='django_chat.asgi.application'
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts":[('redis://:iWy9eAbJUK8ogoINYgIxYJlEsqMdZan4@redis-14144.c264.ap-south-1-1.ec2.cloud.redislabs.com:14144/0')],
+#         },
+#     },
+# }
 
 INSTALLED_APPS = [
+    # 'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -88,6 +98,10 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
             ],
+            'libraries':{
+            'custom_tags': 'django_chat.templatetags.custom_tags',
+            
+            }
         },
     },
 ]

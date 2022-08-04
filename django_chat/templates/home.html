@@ -1,27 +1,73 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load custom_tags %}
 <div class="chatandgroups text-center">
 <div class="row">
-    <div class="col border-top border-end">Chats</div>
-    <div class="col">Groups</div>
+    <div class="chat-section col border-top border-end">Chats</div>
+    <div class="group-section col">Groups</div>
 </div>
 </div>
 <hr style="width:100%", size="3", color=white> 
     <div class="card MainContent" style="width: 100%;">
-    {% for i in chat_objects.values %}
-    <div class="card-header bg-secondary bg-gradient">
-        {{i.reciever}}
+    {% for i in parners %}
+    <div class="card-header bg-secondary bg-gradient">           
+      {{i | get_username}}
+        <span class="bg-danger rounded px-2" id='{{i.reciever}}' style='float:right;'></span>
       </div>
       <ul class="list-group list-group-flush bg-success border-bottom border-5">
-        <li class="ms-2 list-group-item mb-2">{{i.chat}} <span style='float:right;'>{{i.timestamp}}</span></li>        
+        <li class="ms-2 list-group-item mb-2"><span id="{{i.reciever}}chatbox"></span> .....</li>        
       </ul>
       {% empty %}      
       <div class="card-header bg-secondary bg-gradient">
-        {{i.reciever}}
+        {{i | get_username}}
       </div>
       <ul class="list-group list-group-flush bg-success border-bottom border-5">
         <li class="ms-2 list-group-item mb-2">No Chats Yet!!</span></li>        
       </ul>
     {% endfor %}
 </div>
+{% comment %} <script>
+const sender=`{{sender}}`
+const MessageNotification=new WebSocket(
+  `ws://${window.location.host}/ws/${sender}/`
+)
+MessageNotification.onmessage=function(response){
+  console.log(response)
+  const data=JSON.parse(response.data)
+  console.log(data.type)
+  if(data.type==true && data.reciever == `{{request.user}}`){
+    document.getElementById(data.reciever).innerHTML='New Message'    
+    if((data.chat).length > 10){
+      console.log('greater than 10')
+      var length = 10;
+    var myString = data.chat;
+    var myTruncatedString = myString.substring(0,length);
+    document.getElementById(`${data.reciever}chatbox`).innerHTML=myTruncatedString+'...'
+    }
+    else{
+      console.log('less than 10') 
+      document.getElementById(`${data.reciever}chatbox`).innerHTML=data.chat
+    }
+    
+  }
+  else if(data.type == 'deleted'){
+    if((data.chat).length > 10){
+      console.log('greater than 10')
+      var length = 10;
+    var myString = data.chat;
+    var myTruncatedString = myString.substring(0,length);
+    document.getElementById(`${data.reciever}chatbox`).innerHTML=myTruncatedString+'...'
+    }
+    else{
+      console.log('less than 10') 
+      document.getElementById(`${data.reciever}chatbox`).innerHTML=data.chat
+    }
+     
+  }
+}
+MessageNotification.onclose=function(response){
+  console.error('chat socket closed')
+  document.getElementById('newmessagespan').innerHTML=''
+}
+</script> {% endcomment %}
 {% endblock content %}

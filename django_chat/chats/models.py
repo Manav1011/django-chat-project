@@ -1,10 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError  
+from django.dispatch import receiver
+from django.db.models.signals import post_save,m2m_changed
 
 # Create your models here.
 
 class PersonalChatManager(models.Manager):
-    def get_personal_chats(self,user):
+    def get_personal_chats(self,request,user):
+        user=request.user
         chat_objects=self.get_queryset().filter(sender=user).values('reciever').distinct()
         qs={}
         for i in chat_objects:
@@ -16,10 +20,49 @@ class PersonalChat(models.Model):
     sender=models.ForeignKey(User,on_delete=models.CASCADE,related_name='sender')
     reciever=models.ForeignKey(User,related_name='reciever',on_delete=models.CASCADE,null=False,blank=False)
     timestamp=models.DateTimeField(auto_now_add=True)   
+    is_viewed=models.BooleanField(default=False)
     
     def __str__(self):
-        return f'sender: {self.sender} reciever: {self.reciever}'
+        return f'{self.chat}'
     
     objects=PersonalChatManager()
+    
+@receiver(post_save,sender=PersonalChat)
+def add_chat_to_chat_room(sender,instance,created,*args,**kwargs):
+    if created:
+        sender_=instance.sender
+        reciever=instance.reciever
+        chat_roomobj=PersonalChatRoom.objects.all()
+        for i in chat_roomobj:
+            if sender_ in i.members.all() and reciever in i.members.all():
+                new_obj=i
+                i.chats.add(instance)
+            else:
+                pass
+        
+    
+class PersonalChatRoom(models.Model):
+    RoomName=models.CharField(max_length=255,blank=True,null=True)
+    members=models.ManyToManyField(User)
+    chats=models.ManyToManyField(PersonalChat,null=True,blank=True)
+    timestamp=models.DateTimeField(auto_now_add=True)
+    last_updated=models.DateTimeField(auto_now=True)
+    
+@receiver(m2m_changed,sender=PersonalChatRoom.members.through)
+def post_save_room(instance,sender,action,*args,**kwargs):
+        print('created')    
+        room_name=''
+        print(instance.members.all())
+        users=instance.members.all()
+        for i in users:
+            room_name+=i.username
+        print(room_name)
+        instance.RoomName=room_name
+        instance.save()
+    
+
+            
+    
+    
 
 

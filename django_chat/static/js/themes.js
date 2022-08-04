@@ -5,6 +5,7 @@ $(document).ready(function(){
         if(localStorage.getItem('theme')=='Dark'){
             $('.navbar').addClass('navbar-dark')
             $('body').addClass('bg-dark text-light')
+            $('.chat-section').removeClass('border-dark')
         const boxes = document.querySelectorAll('.other-components');
             for (const box of boxes) {
                 box.style.cssText=`
@@ -16,6 +17,7 @@ $(document).ready(function(){
         else{
             $('body').removeClass('bg-dark text-light')
             $('.navbar').removeClass('navbar-dark')
+            $('.chat-section').addClass('border-dark')
             const boxes = document.querySelectorAll('.other-components');
             for (const box of boxes) {
                 box.style.cssText=`
@@ -34,6 +36,7 @@ $(document).ready(function(){
             theme_btn.text(`Theme: ${localStorage.getItem('theme')}`)
             $('body').addClass('bg-dark text-light')
             $('.navbar').addClass('navbar-dark')
+            $('.chat-section').removeClass('border-dark')
             const boxes = document.querySelectorAll('.other-components');
             for (const box of boxes) {
                 box.style.cssText=`
@@ -43,10 +46,11 @@ $(document).ready(function(){
               }
         }
         else{
+            localStorage.setItem('theme','Light')
             $('.navbar').removeClass('navbar-dark')
             $('body').removeClass('bg-dark text-light')
+            $('.chat-section').addClass('border-dark')
             theme_btn.text(`Theme: ${localStorage.getItem('theme')}`)
-            localStorage.setItem('theme','Light')
             theme_btn.text(`Theme: ${localStorage.getItem('theme')}`)
             const boxes = document.querySelectorAll('.other-components');
             for (const box of boxes) {
