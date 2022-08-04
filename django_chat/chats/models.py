@@ -40,13 +40,38 @@ def add_chat_to_chat_room(sender,instance,created,*args,**kwargs):
             else:
                 pass
         
+        
+class PersonalChatRoomManager(models.Manager):
+    def new_or_get(self,request,chat_partner):
+        current_user=request.user
+        chat_partner=chat_partner
+        chat_roomobj=PersonalChatRoom.objects.all()
+        if chat_roomobj:        
+            for i in chat_roomobj:
+                if current_user in i.members.all() and chat_partner in i.members.all():
+                    room_obj=i
+                    print(room_obj)
+                    return room_obj
+                else:
+                    room_obj=PersonalChatRoom.objects.create()        
+                    room_obj.members.add(current_user)
+                    room_obj.members.add(chat_partner)
+                    return room_obj
+        else:
+            room_obj=PersonalChatRoom.objects.create()        
+            room_obj.members.add(current_user)
+            room_obj.members.add(chat_partner)
+            return room_obj
+        
     
-class PersonalChatRoom(models.Model):
+class PersonalChatRoom(models.Model):    
     RoomName=models.CharField(max_length=255,blank=True,null=True)
     members=models.ManyToManyField(User)
     chats=models.ManyToManyField(PersonalChat,null=True,blank=True)
     timestamp=models.DateTimeField(auto_now_add=True)
     last_updated=models.DateTimeField(auto_now=True)
+    
+    objects=PersonalChatRoomManager()
     
 @receiver(m2m_changed,sender=PersonalChatRoom.members.through)
 def post_save_room(instance,sender,action,*args,**kwargs):

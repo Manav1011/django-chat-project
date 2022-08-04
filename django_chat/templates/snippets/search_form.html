@@ -1,0 +1,18 @@
+<form class="ms-3 me-3" action='{% url 'accounts:search' %}' method='get' role="search">
+    <input class="form-control  bg-transparent text-light searchinput" name='q' value="{{request.GET.q}}" type="search" placeholder="Search" aria-label="Search">
+    <i class="bi bi-search me-5 mt-1" id='searchicon'></i>
+    <script>
+      $(document).ready(function(){
+        $('.searchinput').hide();
+        $('#searchicon').click(function(){
+          $('#searchicon').hide()
+          $('.searchinput').show();
+          $('.searchinput').focus()
+        })
+        $('.searchinput').focusout(function(){
+          $('#searchicon').show()
+          $('.searchinput').hide();
+        })
+      })
+    </script>
+  </form> 

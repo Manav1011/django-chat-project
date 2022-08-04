@@ -7,24 +7,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         </ul>
-        <form class="mt-1 ms-3 me-3" role="search">
-          <input class="form-control  bg-transparent text-light searchinput" type="search" placeholder="Search" aria-label="Search">
-          <i class="bi bi-search me-5" id='searchicon'></i>
-          <script>
-            $(document).ready(function(){
-              $('.searchinput').hide();
-              $('#searchicon').click(function(){
-                $('#searchicon').hide()
-                $('.searchinput').show();
-                $('.searchinput').focus()
-              })
-              $('.searchinput').focusout(function(){
-                $('#searchicon').show()
-                $('.searchinput').hide();
-              })
-            })
-          </script>
-        </form> 
+        {% include 'snippets/search_form.html' %}
         <div class="nav-item dropdown d-flex">
           <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="navbar-toggler-icon"></span>

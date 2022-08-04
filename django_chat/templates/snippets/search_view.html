@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="card MainContent mt-2" style="width: 100%;">
+    {% for i in qs %}
+    <div class="btn card-header bg-secondary bg-gradient" id='{{i.id}}'>           
+      {{i}}
+      </div>
+      <script>
+        $('document').ready(function(){
+            var user=$('#{{i.id}}')
+            user.click(function(event){
+                event.preventDefault()
+                data={
+                    'id':`{{i.id}}`
+                }
+                $.ajax({
+                    url:`{% url 'chats:create_personal_room' %}`,
+                    method: 'GET',
+                    data:data,
+                    success:function(response){
+                        console.log(response)
+                    },
+                    error:function(errorData){
+                        console.log(errorData)
+                    }
+                })
+            })
+        });
+    </script>
+      <ul class="list-group list-group-flush bg-success border-bottom border-5">
+        <li class="ms-2 list-group-item mb-2"><span id="{{i.reciever}}chatbox"></span> .....</li>        
+      </ul>
+      {% empty %}      
+      <div class="card-header bg-secondary bg-gradient">
+      </div>
+      <ul class="list-group list-group-flush bg-success border-bottom border-5">
+        <li class="ms-2 list-group-item mb-2">No User Found!!</span></li>        
+      </ul>
+    {% endfor %}
+</div>
+{% endblock content %}

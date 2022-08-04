@@ -23,4 +23,6 @@ urlpatterns = [
     re_path(r'^home/$',home_view,name='home'),    
     path("", login, name="account_login"),
     path('accounts/', include('allauth.urls')),
+    path('accounts_/', include('accounts.urls')),
+    path('chats/', include('chats.urls')),
 ]
