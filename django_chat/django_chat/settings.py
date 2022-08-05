@@ -44,21 +44,21 @@ AUTHENTICATION_BACKENDS = [
 ACCOUNT_SESSION_REMEMBER =False
 ACCOUNT_SIGNUP_REDIRECT_URL='accounts:email_verification_sent'
 ACCOUNT_EMAIL_REQUIRED=True
-ACCOUNT_EMAIL_VERIFICATION='mandatory'
+ACCOUNT_EMAIL_VERIFICATION='mandatojry'
 ACCOUNT_AUTHENTICATION_METHOD=('username_email')
 
-# ASGI_APPLICATION='django_chat.asgi.application'
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts":[('redis://:iWy9eAbJUK8ogoINYgIxYJlEsqMdZan4@redis-14144.c264.ap-south-1-1.ec2.cloud.redislabs.com:14144/0')],
-#         },
-#     },
-# }
+ASGI_APPLICATION='django_chat.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts":[('redis://:iWy9eAbJUK8ogoINYgIxYJlEsqMdZan4@redis-14144.c264.ap-south-1-1.ec2.cloud.redislabs.com:14144/0')],
+        },
+    },
+}
 
 INSTALLED_APPS = [
-    # 'channels',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

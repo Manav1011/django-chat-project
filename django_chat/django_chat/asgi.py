@@ -18,15 +18,15 @@ import accounts.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_chat.settings')
 application=get_asgi_application()
-# application=ProtocolTypeRouter({
-#     'http':get_asgi_application(),
-#     'websocket':AuthMiddlewareStack(
-#         SessionMiddlewareStack(
-#             URLRouter(
-#                 accounts.routing.websocket_urlpatterns
-#             )
-#         )
-#     )
-# })
+application=ProtocolTypeRouter({
+    'http':get_asgi_application(),
+    'websocket':AuthMiddlewareStack(
+        SessionMiddlewareStack(
+            URLRouter(
+                accounts.routing.websocket_urlpatterns
+            )
+        )
+    )
+})
 
 

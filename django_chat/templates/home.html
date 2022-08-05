@@ -16,64 +16,58 @@
     {% for j in i %}
     <a href="{% url 'chats:create_personal_room' pk=j.id %}" class='btn p-0'>
       {% endfor %}
-    <div class="card-header bg-secondary bg-gradient">           
+    <div class="card-header bg-secondary">           
       {{i | get_username}}
-        <span class="bg-danger rounded px-2" id='{{i.reciever}}' style='float:right;'></span>
+        <span class="bg-danger rounded new_message_count px-2" id='{{i | get_id}}' style='float:right;'></span>
       </div>
+      <script>
+        $(document).ready(function(){
+        var element=document.getElementById(`{{i | get_id}}`)
+        var count=Number(`{{k.chats.all | is_viewed_count}}`)
+        console.log(count)    
+        if(count <= 0){
+          element.innerHTML=`No New Messages`
+        }
+        else{
+          element.innerHTML=`${count} New Messages`
+        }
+      });
+      </script>
     </a>
     <ul class="list-group list-group-flush bg-success border-bottom border-5">
-      <li class="ms-2 list-group-item mb-2">{{k.chats.last}}</span></li>        
+      <li class="ms-2 list-group-item mb-2" id='{{i | get_id}}lastchatspan'>{{k.chats.last}}</span></li>        
     </ul>
       {% empty %}      
-      <div class="card-header bg-secondary bg-gradient">
+      <div class="card-header bg-secondary">
       </div>
       <ul class="list-group list-group-flush bg-success border-bottom border-5">
         <li class="ms-2 list-group-item mb-2">No Chats Yet!!</span></li>        
       </ul>
     {% endfor %}
 </div>
-{% comment %} <script>
-const sender=`{{sender}}`
-const MessageNotification=new WebSocket(
-  `ws://${window.location.host}/ws/${sender}/`
-)
-MessageNotification.onmessage=function(response){
-  console.log(response)
-  const data=JSON.parse(response.data)
-  console.log(data.type)
-  if(data.type==true && data.reciever == `{{request.user}}`){
-    document.getElementById(data.reciever).innerHTML='New Message'    
-    if((data.chat).length > 10){
-      console.log('greater than 10')
-      var length = 10;
-    var myString = data.chat;
-    var myTruncatedString = myString.substring(0,length);
-    document.getElementById(`${data.reciever}chatbox`).innerHTML=myTruncatedString+'...'
-    }
-    else{
-      console.log('less than 10') 
-      document.getElementById(`${data.reciever}chatbox`).innerHTML=data.chat
-    }
-    
+<script>
+  var user=`{{request.user}}`
+  const NotificationSocket=new WebSocket(
+    'ws://'
+    + window.location.host
+    + '/ws/'
+    + user
+    + '/notify/'
+);
+  
+
+  NotificationSocket.onmessage=function(response){
+      var data=JSON.parse(response.data)
+      if (data.type =='chat_notify'){
+        var newmessagespan=document.getElementById(data.partner_id)
+        var lastchatspan=document.getElementById(`${data.partner_id}lastchatspan`)
+        newmessagespan.innerHTML=`${data.count} New Messages`
+        lastchatspan.innerHTML=`${data.chat}`
+      }
   }
-  else if(data.type == 'deleted'){
-    if((data.chat).length > 10){
-      console.log('greater than 10')
-      var length = 10;
-    var myString = data.chat;
-    var myTruncatedString = myString.substring(0,length);
-    document.getElementById(`${data.reciever}chatbox`).innerHTML=myTruncatedString+'...'
-    }
-    else{
-      console.log('less than 10') 
-      document.getElementById(`${data.reciever}chatbox`).innerHTML=data.chat
-    }
-     
-  }
-}
-MessageNotification.onclose=function(response){
-  console.error('chat socket closed')
-  document.getElementById('newmessagespan').innerHTML=''
-}
-</script> {% endcomment %}
+
+  NotificationSocket.onclose = function(e) {
+    console.error('Chat socket closed unexpectedly');
+};
+</script>
 {% endblock content %}
