@@ -20,7 +20,7 @@ class PersonalChat(models.Model):
     sender=models.ForeignKey(User,on_delete=models.CASCADE,related_name='sender')
     reciever=models.ForeignKey(User,related_name='reciever',on_delete=models.CASCADE,null=False,blank=False)
     timestamp=models.DateTimeField(auto_now_add=True)   
-    is_viewed=models.BooleanField(default=False)
+    viewed_by=models.ManyToManyField(User,null=True,blank=True)
     
     def __str__(self):
         return f'{self.chat}'
@@ -65,10 +65,11 @@ class PersonalChatRoomManager(models.Manager):
     
 class PersonalChatRoom(models.Model):    
     RoomName=models.CharField(max_length=255,blank=True,null=True)
-    members=models.ManyToManyField(User)
+    members=models.ManyToManyField(User,related_name='members')
     chats=models.ManyToManyField(PersonalChat,null=True,blank=True)
     timestamp=models.DateTimeField(auto_now_add=True)
     last_updated=models.DateTimeField(auto_now=True)
+    members_online=models.ManyToManyField(User,blank=True,null=True,related_name='online_members')
     
     objects=PersonalChatRoomManager()
     

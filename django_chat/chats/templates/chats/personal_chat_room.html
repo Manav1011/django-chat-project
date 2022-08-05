@@ -53,10 +53,11 @@
             'ws://'
             + window.location.host
             + '/ws/chat/'
+            +`{{RoomObject.RoomName}}/`
             + RoomName
             + '/'
         );
-
+        
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);          
             console.log(data)

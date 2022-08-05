@@ -14,8 +14,7 @@ def create_personal_room(request,pk):
     chat_partner=User.objects.get(id=user_id)   
     RoomObject=PersonalChatRoom.objects.new_or_get(request,chat_partner)
     for i in RoomObject.chats.all():
-        i.is_viewed=True
-        i.save()
+        i.viewed_by.add(current_user)
     context={
         'chat_partner':chat_partner,
         'RoomObject':RoomObject,

@@ -60,8 +60,8 @@ class MessageNotificationConsumer(AsyncWebsocketConsumer):
             for i in room_partners:
                 partner_id=i.id
             for i in instance.chats.all():
-                if i.is_viewed == False:
-                    count+=1
+                i.viewed_by.add(i.sender)
+                
         channel_layer=get_channel_layer()                         
         async_to_sync(channel_layer.group_send)(
             MessageNotificationConsumer.group_name,           
@@ -74,9 +74,16 @@ class MessageNotificationConsumer(AsyncWebsocketConsumer):
         )        
                     
         
-class PersonalChatConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
+class PersonalChatConsumer(AsyncWebsocketConsumer):    
+        
+    def online_members(self,RoomName,user):
+        self.RoomObj=PersonalChatRoom.objects.get(RoomName=RoomName)
+        self.RoomObj.members_online.add(user)
+    
+    async def connect(self):               
         await self.accept()
+        self.RoomObjName=self.scope["url_route"]["kwargs"]["RoomObjName"]
+        await database_sync_to_async(self.online_members)(self.RoomObjName,self.scope['user'])
         self.group_name=f'chat_{self.scope["url_route"]["kwargs"]["RoomName"]}'
         print(self.group_name)
         await self.channel_layer.group_add(
@@ -84,11 +91,17 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
     
+    def offline_members(self,RoomName,user):        
+        RoomObj=PersonalChatRoom.objects.get(RoomName=RoomName)
+        RoomObj.members_online.remove(user)
+        
     async def disconnect(self,close_code):
+        await database_sync_to_async(self.offline_members)(self.RoomObjName,self.scope['user'])        
         await self.channel_layer.group_discard(
             self.group_name,
             self.channel_name
         )
+
     def get_user(self):
         return User.objects.get(username=self.user)
     
@@ -96,7 +109,11 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
         return User.objects.get(username=self.chat_partner)
     
     def create_chat_object(self,user,chat_partner,message):
-        PersonalChat.objects.create(chat=message,sender=user,reciever=chat_partner)
+        ChatObj=PersonalChat.objects.create(chat=message,sender=user,reciever=chat_partner)
+        for i in self.RoomObj.members_online.all():
+            print(i)
+            ChatObj.viewed_by.add(i)
+            
     
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)

@@ -33,19 +33,19 @@
         <span class="bg-danger rounded new_message_count px-2" id='{{i | get_id}}' style='float:right;'></span>
       </div>    
       <script>
-        $(document).ready(function(){
-        var element=document.getElementById(`{{i | get_id}}`)
-        var count=Number(`{{k.chats.all | is_viewed_count}}`)
-        navcount=navcount+count
-        if(count <= 0){
-          element.innerHTML=`No New Messages`
-          $('.navmessagecount').text(navcount)
-        }
-        else{
-          element.innerHTML=`${count} New Messages`
-          $('.navmessagecount').text(navcount)
-        }
-      });
+        {% comment %} $(document).ready(function(){ {% endcomment %}
+        {% comment %} var element=document.getElementById(`{{i | get_id}}`) {% endcomment %}
+        {% comment %} var count=Number(`{{k.chats.all | is_viewed_count}}`) {% endcomment %}
+        {% comment %} navcount=navcount+count {% endcomment %}
+        {% comment %} if(count <= 0){ {% endcomment %}
+          {% comment %} element.innerHTML=`No New Messages` {% endcomment %}
+          {% comment %} $('.navmessagecount').text(navcount) {% endcomment %}
+        {% comment %} } {% endcomment %}
+        {% comment %} else{ {% endcomment %}
+          {% comment %} element.innerHTML=`${count} New Messages` {% endcomment %}
+          {% comment %} $('.navmessagecount').text(navcount) {% endcomment %}
+        {% comment %} } {% endcomment %}
+      {% comment %} }); {% endcomment %}
       </script>
     </a>
     <ul class="list-group list-group-flush bg-success border-bottom border-5">

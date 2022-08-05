@@ -38,11 +38,11 @@
         var data=JSON.parse(response.data)
         console.log(data)
         if (data.type =='chat_notify'){
-            $('.navmessagecount').text(data.count)
-          var newmessagespan=document.getElementById(data.partner_id)
-          var lastchatspan=document.getElementById(`${data.partner_id}lastchatspan`)
-          newmessagespan.innerHTML=`${data.count} New Messages`
-          lastchatspan.innerHTML=`${data.chat}`
+          {% comment %} $('.navmessagecount').text(data.count) {% endcomment %}
+          {% comment %} var newmessagespan=document.getElementById(data.partner_id) {% endcomment %}
+          {% comment %} var lastchatspan=document.getElementById(`${data.partner_id}lastchatspan`) {% endcomment %}
+          {% comment %} newmessagespan.innerHTML=`${data.count} New Messages` {% endcomment %}
+          {% comment %} lastchatspan.innerHTML=`${data.chat}` {% endcomment %}
         }
     }
   
