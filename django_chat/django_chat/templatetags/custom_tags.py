@@ -1,4 +1,5 @@
 from django import template
+import re
 
 register = template.Library()
 
@@ -21,3 +22,10 @@ def is_viewed_count(value):
 def get_id(value):
     for i in value:
         return i.id
+    
+    
+@register.filter
+def remove_unnecessary(value):
+    s1="".join(c for c in value if c.isalpha())
+    return s1
+    

@@ -6,6 +6,8 @@ from django.db.models.signals import m2m_changed
 from chats.models import PersonalChat,PersonalChatRoom
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from channels.db import database_sync_to_async
+from django.contrib.auth.models import User
 
 class MessageNotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):     
@@ -33,76 +35,84 @@ class MessageNotificationConsumer(AsyncWebsocketConsumer):
     @receiver(m2m_changed,sender=PersonalChatRoom.chats.through)
     def m2m_changed_reciever(instance,action,sender,*args,**kwargs):
         print(action)
-        if MessageNotificationConsumer.user in instance.members.all():
-            count=0
-            room_partners={}
-            for i in instance.members.all().exclude(username=MessageNotificationConsumer.user.username):
-                room_partners.update({i:i})
-            partner_id=None
-            for i in room_partners:
-                partner_id=i.id
-            for i in instance.chats.all():
-                if i.is_viewed == False:
-                    count+=1
-        channel_layer=get_channel_layer()                         
-        async_to_sync(channel_layer.group_send)(
-            MessageNotificationConsumer.group_name,           
-            {
-                'type':'chat_notification',
-                'count':count,
-                'partner_id':partner_id,
-                'chat':str(instance.chats.last())
-            }
-        )
+        try:
+            if MessageNotificationConsumer.user in instance.members.all():
+                count=0
+                room_partners={}
+                for i in instance.members.all().exclude(username=MessageNotificationConsumer.user.username):
+                    room_partners.update({i:i})
+                partner_id=None
+                for i in room_partners:
+                    partner_id=i.id
+                for i in instance.chats.all():
+                    if i.is_viewed == False:
+                        count+=1
+            channel_layer=get_channel_layer()                         
+            async_to_sync(channel_layer.group_send)(
+                MessageNotificationConsumer.group_name,           
+                {
+                    'type':'chat_notification',
+                    'count':count,
+                    'partner_id':partner_id,
+                    'chat':str(instance.chats.last())
+                }
+            )
+        except Exception as e:
+            print(e)
                     
         
+class PersonalChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
+        self.group_name=f'chat_{self.scope["url_route"]["kwargs"]["RoomName"]}'
+        print(self.group_name)
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
     
+    async def disconnect(self,close_code):
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
+    def get_user(self):
+        return User.objects.get(username=self.user)
     
-    # async def chat_notification(self,event):
-    #     await self.send(
-    #         json.dumps({
-    #             'type':event['created'],
-    #             'reciever':event['reciever'],
-    #             'sender':event['sender'],
-    #             'chat':event['chat']
-    #         })
-    #     )
+    def get_chat_partner(self):
+        return User.objects.get(username=self.chat_partner)
     
-    # @receiver(post_save,sender=PersonalChat)
-    # def get_perssonal_chats(instance,created,*args,**kwargs):
-    #     channel_layer=get_channel_layer()     
-    #     print(instance.reciever.username)   
-    #     print(instance.chat)
-        # async_to_sync(channel_layer.group_send)(
-        #     MessageNotificationConsumer.group_name,           
-        #     {
-        #         'type':'chat_notification',
-        #         'reciever':instance.reciever.username,
-        #         'sender':instance.sender.username,
-        #         'created':created,
-        #         'chat':instance.chat
-        #     }
-        # )
-        
-    # async def delete_chat_notification(self,event):
-    #     await self.send(
-    #         json.dumps({
-    #             'type':'deleted',
-    #             'reciever':event['reciever'],
-    #             'chat':event['chat']
-    #         })
-    #     )
-    # @receiver(post_delete,sender=PersonalChat)
-    # def on_delete_perssonal_chats(instance,*args,**kwargs):
-    #     channel_layer=get_channel_layer()             
-    #     chat_objects=PersonalChat.objects.get_personal_chats(instance.sender)
-    #     async_to_sync(channel_layer.group_send)(
-    #         MessageNotificationConsumer.group_name,           
-    #         {
-    #             'type':'delete_chat_notification',
-    #             'reciever':instance.reciever.username,
-            
-    #         }
-    #     )
-        
+    def create_chat_object(self,user,chat_partner,message):
+        PersonalChat.objects.create(chat=message,sender=user,reciever=chat_partner)
+    
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        self.user=text_data_json['user']
+        self.chat_partner=text_data_json['chat_partner']
+        self.user_obj = await database_sync_to_async(self.get_user)()
+        self.chat_partner_obj = await database_sync_to_async(self.get_chat_partner)()
+        self.message = text_data_json['message']
+        await database_sync_to_async(self.create_chat_object)(self.user_obj,self.chat_partner_obj,self.message)
+
+        # Send message to room group
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                'type': 'chat_message',
+                'sender':self.user,
+                'reciever':self.chat_partner,
+                'message': self.message
+            }
+        )
+
+    # Receive message from room group
+    async def chat_message(self, event):
+        message = event['message']
+
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
+            'message': message,
+            'sender':event['sender'],
+            'reciever':event['reciever']
+        }))
     

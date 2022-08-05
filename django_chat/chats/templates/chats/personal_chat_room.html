@@ -11,13 +11,13 @@
     <div class="card-body messagebody" id='messagebody' style="overflow-y: scroll; height:60vh;">
         {% for i in RoomObject.chats.all %}
         {% if i.sender == request.user %}
-        <div class="card border-0 other-components">
+        <div class="card border-0 other-components senderchats">
             <div class="card-body">
               <span class='bg-success px-3 rounded' style='float:right'>{{i}}</span>
             </div>
           </div>
         {% else %}
-        <div class="card border-0 other-components">
+        <div class="card border-0 other-components recieverchats">
             <div class="card-body">
               <span class='bg-secondary px-3 rounded' style='float:left'>{{i}}</span>
             </div>
@@ -27,11 +27,68 @@
         {% endfor %}
     </div>
     <form class="d-flex" role="search">
-        <input class="form-control me-2" type="text" placeholder="Type a message...">
-        <button class="btn btn-outline-success btn-sm" type="submit">Send</button>
-      </form>
+        <input class="form-control me-2" type="text" placeholder="Type a message..." id='ChatInput'>
+        <button class="btn btn-outline-success btn-sm" type="submit" id='ChatSubmit'>Send</button>
+      </form>      
   <script>    
     var objDiv = document.getElementById("messagebody");
     objDiv.scrollTop = objDiv.scrollHeight;
+     </script>
+      <script>
+        var RoomName=`{{RoomObject.RoomName | remove_unnecessary}}`
+        console.log(RoomName)
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + RoomName
+            + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);          
+            console.log(data)
+            sender=`{{request.user.username}}`
+            console.log(sender)
+            console.log(data.sender)
+            if(data.sender == sender){
+              $('.messagebody').append(`
+              <div>
+              <div class="card-body">
+                <span class='bg-success px-3 rounded' style='float:right'>${data.message}</span>
+              </div>
+            </div>
+            <br>
+              `)
+            }
+            else{
+              $('.messagebody').append(`
+              <div>
+              <div class="card-body">
+                <span class='bg-secondary px-3 rounded' style='float:left'>${data.message}</span>
+              </div>
+            </div>
+            <br>
+              `)
+            }
+            var objDiv = document.getElementById("messagebody");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };      
+        
+        document.querySelector('#ChatSubmit').onclick = function(e) {
+          e.preventDefault();
+          const messageInputDom = document.querySelector('#ChatInput');
+          const message = messageInputDom.value;
+          chatSocket.send(JSON.stringify({
+              'user':`{{request.user}}`,
+              'chat_partner':`{{chat_partner}}`,
+              'message': message
+          }));
+          messageInputDom.value = '';
+      };
      </script>
 {% endblock content %}

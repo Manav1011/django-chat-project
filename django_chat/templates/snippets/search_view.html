@@ -2,8 +2,8 @@
 {% block content %}
     <div class="card MainContent mt-2" style="width: 100%;">
     {% for i in qs %}
-    <a href="{% url 'chats:create_personal_room' pk=i.id %}" class='btn'>
-    <div class="card-header bg-secondary bg-gradient">           
+    <a href="{% url 'chats:create_personal_room' pk=i.id %}" class='btn p-0'>
+    <div class="card-header bg-secondary">           
       {{i}}
       </div>
     </a>
@@ -33,7 +33,7 @@
         <li class="ms-2 list-group-item mb-2"><span id="{{i.reciever}}chatbox"></span> .....</li>        
       </ul>
       {% empty %}      
-      <div class="card-header bg-secondary bg-gradient">
+      <div class="card-header bg-secondary">
       </div>
       <ul class="list-group list-group-flush bg-success border-bottom border-5">
         <li class="ms-2 list-group-item mb-2">No User Found!!</span></li>        
