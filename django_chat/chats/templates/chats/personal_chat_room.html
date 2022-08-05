@@ -8,6 +8,18 @@
 </style>
 <div class="container card shadow-lg p-3 mb-5 rounded other-components" style="font-family: 'Open Sans', sans-serif !important;">
     <h5 class="card-title"><a href="{% url 'home' %}" class="bi bi-arrow-left me-3 btn btn-outline-danger">Go Back</a>{{chat_partner}}</h5>
+    <span style='' class='{{chat_partner.id}} text-center' >{{chat_partner.first_name}}</span>
+    <script>
+      var online=`{{chat_partner.first_name}}`
+      console.log(online)
+      if (online == 'Online'){
+        $('.{{chat_partner.id}}').addClass('rounded px-2 bg-gradient')
+      }
+      else{
+        $('.{{chat_partner.id}}').addClass('rounded px-2 bg-gradient')
+        $('.{{chat_partner.id}}').text('Last Scene: '+online)
+      }
+    </script>
     <div class="card-body messagebody" id='messagebody' style="overflow-y: scroll; height:60vh;">
         {% for i in RoomObject.chats.all %}
         {% if i.sender == request.user %}

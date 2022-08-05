@@ -28,4 +28,9 @@ def get_id(value):
 def remove_unnecessary(value):
     s1="".join(c for c in value if c.isalpha())
     return s1
+
+@register.filter
+def is_online(value):
+    for i in value:
+        return i.first_name
     

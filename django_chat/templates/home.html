@@ -16,20 +16,34 @@
     {% for j in i %}
     <a href="{% url 'chats:create_personal_room' pk=j.id %}" class='btn p-0'>
       {% endfor %}
-    <div class="card-header bg-secondary">           
-      {{i | get_username}}
+    <div>  
+      
+      <span class="px-2 bg-secondary rounded" style='float:left; font-size:1.2rem;'>{{i | get_username}}</span>    
+      <span class="px-2 rounded {{i | get_id}}" style=''>{{i | is_online }}</span>    
+      <script>
+        var online=`{{i | is_online }}`
+        console.log(online)
+        if (online == 'Online'){
+          $('.{{i | get_id}}').addClass('bg-success rounded')
+        }
+        else{
+          $('.{{i | get_id}}').text('Last Scene: '+online)
+        }
+      </script>
         <span class="bg-danger rounded new_message_count px-2" id='{{i | get_id}}' style='float:right;'></span>
-      </div>
+      </div>    
       <script>
         $(document).ready(function(){
         var element=document.getElementById(`{{i | get_id}}`)
         var count=Number(`{{k.chats.all | is_viewed_count}}`)
-        console.log(count)    
+        navcount=navcount+count
         if(count <= 0){
           element.innerHTML=`No New Messages`
+          $('.navmessagecount').text(navcount)
         }
         else{
           element.innerHTML=`${count} New Messages`
+          $('.navmessagecount').text(navcount)
         }
       });
       </script>
@@ -45,29 +59,4 @@
       </ul>
     {% endfor %}
 </div>
-<script>
-  var user=`{{request.user}}`
-  const NotificationSocket=new WebSocket(
-    'ws://'
-    + window.location.host
-    + '/ws/'
-    + user
-    + '/notify/'
-);
-  
-
-  NotificationSocket.onmessage=function(response){
-      var data=JSON.parse(response.data)
-      if (data.type =='chat_notify'){
-        var newmessagespan=document.getElementById(data.partner_id)
-        var lastchatspan=document.getElementById(`${data.partner_id}lastchatspan`)
-        newmessagespan.innerHTML=`${data.count} New Messages`
-        lastchatspan.innerHTML=`${data.chat}`
-      }
-  }
-
-  NotificationSocket.onclose = function(e) {
-    console.error('Chat socket closed unexpectedly');
-};
-</script>
 {% endblock content %}

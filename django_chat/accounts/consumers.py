@@ -8,19 +8,35 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
+import datetime
 
 class MessageNotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):     
         await self.accept()  
+        self.user=self.scope['user']
+        await database_sync_to_async(self.online_user)()
+        print(self.user.first_name)
         MessageNotificationConsumer.user=self.scope['user']
-        MessageNotificationConsumer.group_name=f'chat_notifcation_{MessageNotificationConsumer.user.username}'
+        MessageNotificationConsumer.group_name=f'chat_notifcation_{self.scope["url_route"]["kwargs"]["user"]}'
         await self.channel_layer.group_add(
             MessageNotificationConsumer.group_name,
             self.channel_name
         )        
         
+    def online_user(self):
+        self.user.first_name='Online'
+        self.user.save()
+        
+    def offline_user(self):
+        now=datetime.datetime.now()
+        time=now.strftime("%H:%M")
+        self.user.first_name=str(time)
+        self.user.save()
+        
     async def disconnect(self,close_code):
-        pass
+        await database_sync_to_async(self.offline_user)()
+        print(self.user.first_name)
+        print(f'last scene is:{self.user.last_name}')
     
     async def chat_notification(self,event):
         await self.send(
@@ -35,30 +51,27 @@ class MessageNotificationConsumer(AsyncWebsocketConsumer):
     @receiver(m2m_changed,sender=PersonalChatRoom.chats.through)
     def m2m_changed_reciever(instance,action,sender,*args,**kwargs):
         print(action)
-        try:
-            if MessageNotificationConsumer.user in instance.members.all():
-                count=0
-                room_partners={}
-                for i in instance.members.all().exclude(username=MessageNotificationConsumer.user.username):
-                    room_partners.update({i:i})
-                partner_id=None
-                for i in room_partners:
-                    partner_id=i.id
-                for i in instance.chats.all():
-                    if i.is_viewed == False:
-                        count+=1
-            channel_layer=get_channel_layer()                         
-            async_to_sync(channel_layer.group_send)(
-                MessageNotificationConsumer.group_name,           
-                {
-                    'type':'chat_notification',
-                    'count':count,
-                    'partner_id':partner_id,
-                    'chat':str(instance.chats.last())
-                }
-            )
-        except Exception as e:
-            print(e)
+        if MessageNotificationConsumer.user in instance.members.all():
+            count=0
+            room_partners={}
+            for i in instance.members.all().exclude(username=MessageNotificationConsumer.user.username):
+                room_partners.update({i:i})
+            partner_id=None
+            for i in room_partners:
+                partner_id=i.id
+            for i in instance.chats.all():
+                if i.is_viewed == False:
+                    count+=1
+        channel_layer=get_channel_layer()                         
+        async_to_sync(channel_layer.group_send)(
+            MessageNotificationConsumer.group_name,           
+            {
+                'type':'chat_notification',
+                'count':count,
+                'partner_id':partner_id,
+                'chat':str(instance.chats.last())
+            }
+        )        
                     
         
 class PersonalChatConsumer(AsyncWebsocketConsumer):

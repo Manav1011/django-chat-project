@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% load bootstrap5 %}
 {% load i18n %}
+{% load custom_tags %}
 {# Load CSS and JavaScript #}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
@@ -15,9 +16,39 @@
     <title>Django-chat</title>
     {% include 'links&cdns.html' %}
 </head>
+<script>
+    var navcount=0
+  </script>
 <body>  
    {% include 'nav.html' %}
    {% block content %}
    {% endblock content %}
+   <script>
+    var user=`{{request.user.username | remove_unnecessary}}`
+    const NotificationSocket=new WebSocket(
+      'ws://'
+      + window.location.host
+      + '/ws/'
+      + user
+      + '/notify/'
+  );
+    
+  
+    NotificationSocket.onmessage=function(response){
+        var data=JSON.parse(response.data)
+        console.log(data)
+        if (data.type =='chat_notify'){
+            $('.navmessagecount').text(data.count)
+          var newmessagespan=document.getElementById(data.partner_id)
+          var lastchatspan=document.getElementById(`${data.partner_id}lastchatspan`)
+          newmessagespan.innerHTML=`${data.count} New Messages`
+          lastchatspan.innerHTML=`${data.chat}`
+        }
+    }
+  
+    NotificationSocket.onclose = function(e) {
+      console.error('Chat socket closed unexpectedly');
+  };
+  </script>
 </body>
 </html>
