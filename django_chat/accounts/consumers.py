@@ -110,8 +110,7 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
     
     def create_chat_object(self,user,chat_partner,message):
         ChatObj=PersonalChat.objects.create(chat=message,sender=user,reciever=chat_partner)
-        for i in self.RoomObj.members_online.all():
-            print(i)
+        for i in self.RoomObj.members_online.all():            
             ChatObj.viewed_by.add(i)
             
     

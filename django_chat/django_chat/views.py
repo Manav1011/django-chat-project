@@ -6,8 +6,7 @@ from chats.models import PersonalChat,PersonalChatRoom
 @login_required
 def home_view(request):    
     user=request.user
-    chatroom_obj=PersonalChatRoom.objects.filter(members=user)        
-    # chat_objects=PersonalChat.objects.get_personal_chats(User)   
+    chatroom_obj=PersonalChatRoom.objects.filter(members=user)             
     room_partners={}
     for i in chatroom_obj:
         room_partners.update({i.members.all().exclude(username=request.user.username):i.members.all().exclude(username=request.user.username)})        

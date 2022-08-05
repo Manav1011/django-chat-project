@@ -13,9 +13,14 @@ def get_pk(value):
     return value.pk
 
 @register.filter
-def is_viewed_count(value):
-    value=value.filter(is_viewed=False)
-    return value.count()
+def not_viewed(value,user):
+    count=0
+    for i in value:
+        if user in i.viewed_by.all():
+            pass
+        else:
+            count+=1
+    return count
 
 
 @register.filter

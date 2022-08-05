@@ -30,22 +30,10 @@
           $('.{{i | get_id}}').text('Last Scene: '+online)
         }
       </script>
-        <span class="bg-danger rounded new_message_count px-2" id='{{i | get_id}}' style='float:right;'></span>
+        <span class="bg-danger rounded new_message_count px-2" id='{{i | get_id}}' style='float:right;'>{{k.chats.all | not_viewed:request.user}}</span>
       </div>    
       <script>
-        {% comment %} $(document).ready(function(){ {% endcomment %}
-        {% comment %} var element=document.getElementById(`{{i | get_id}}`) {% endcomment %}
-        {% comment %} var count=Number(`{{k.chats.all | is_viewed_count}}`) {% endcomment %}
-        {% comment %} navcount=navcount+count {% endcomment %}
-        {% comment %} if(count <= 0){ {% endcomment %}
-          {% comment %} element.innerHTML=`No New Messages` {% endcomment %}
-          {% comment %} $('.navmessagecount').text(navcount) {% endcomment %}
-        {% comment %} } {% endcomment %}
-        {% comment %} else{ {% endcomment %}
-          {% comment %} element.innerHTML=`${count} New Messages` {% endcomment %}
-          {% comment %} $('.navmessagecount').text(navcount) {% endcomment %}
-        {% comment %} } {% endcomment %}
-      {% comment %} }); {% endcomment %}
+
       </script>
     </a>
     <ul class="list-group list-group-flush bg-success border-bottom border-5">
