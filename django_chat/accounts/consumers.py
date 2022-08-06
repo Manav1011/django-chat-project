@@ -15,8 +15,7 @@ class OnlineUserConsumer(AsyncWebsocketConsumer):
     async def connect(self):     
         await self.accept()  
         self.user=self.scope['user']
-        await database_sync_to_async(self.online_user)()
-        print(self.user.first_name)
+        await database_sync_to_async(self.online_user)()        
         
     def online_user(self):
         self.user.first_name='Online'
@@ -29,9 +28,7 @@ class OnlineUserConsumer(AsyncWebsocketConsumer):
         self.user.save()
         
     async def disconnect(self,close_code):
-        await database_sync_to_async(self.offline_user)()
-        print(self.user.first_name)
-        print(f'last scene is:{self.user.last_name}')
+        await database_sync_to_async(self.offline_user)()        
     
                     
         
@@ -46,8 +43,7 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
         PersonalChatConsumer.user=self.scope['user']                     
         self.RoomObjName=self.scope["url_route"]["kwargs"]["RoomObjName"]
         await database_sync_to_async(self.online_members)(self.RoomObjName,self.scope['user'])
-        PersonalChatConsumer.group_name=f'chat_{self.scope["url_route"]["kwargs"]["RoomName"]}'
-        print(self.group_name)
+        PersonalChatConsumer.group_name=f'chat_{self.scope["url_route"]["kwargs"]["RoomName"]}'        
         await self.channel_layer.group_add(
             PersonalChatConsumer.group_name,
             self.channel_name
@@ -82,8 +78,6 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
         self.user_obj = await database_sync_to_async(self.get_user)()
         self.chat_partner_obj = await database_sync_to_async(self.get_chat_partner)()
         self.message = text_data_json['message']
-        await database_sync_to_async(self.create_chat_object)(self.user_obj,self.chat_partner_obj,self.message)
-
         # Send message to room group
         await self.channel_layer.group_send(
             self.group_name,
@@ -94,6 +88,7 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
                 'message': self.message
             }
         )
+        await database_sync_to_async(self.create_chat_object)(self.user_obj,self.chat_partner_obj,self.message)
 
     # Receive message from room group
     async def chat_message(self, event):
@@ -107,17 +102,16 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
         }))      
     
     @receiver(m2m_changed,sender=PersonalChatRoom.chats.through)
-    def m2m_changed_reciever(instance,pk_set,action,sender,*args,**kwargs):
-        print(pk_set)                            
-        for i in instance.chats.all():
-            i.viewed_by.add(i.sender) 
+    def m2m_changed_reciever(instance,pk_set,action,sender,*args,**kwargs):              
+        if action == 'post_add':
+            for i in instance.chats.all():
+                i.viewed_by.add(i.sender) 
             
             
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):   
         await self.accept()              
-        NotificationConsumer.group_name=f'{self.scope["url_route"]["kwargs"]["userforgroup"]}_notify'
-        print(NotificationConsumer.group_name)
+        NotificationConsumer.group_name=f'{self.scope["url_route"]["kwargs"]["userforgroup"]}_notify'        
         await self.channel_layer.group_add(
             NotificationConsumer.group_name,
             self.channel_name
@@ -133,7 +127,9 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 'reciever_id':event['reciever_id'],
                 'reciever_username':event['reciever_username'],
                 'sender_id':event['sender_id'],
-                'sender_username':event['sender_username']
+                'sender_username':event['sender_username'],
+                'chat':event['chat'],
+                'counter':event['counter'],
             })
         )
     
@@ -145,6 +141,7 @@ def NotificationSend(instance,pk_set,action,sender,*args,**kwargs):
         reciever=chat_obj.reciever
         reciever_for_group=remove_unnecessary(reciever.username)
         if reciever not in instance.members_online.all() and reciever not in chat_obj.viewed_by.all():
+            counter=1
             channel_layer=get_channel_layer()
             async_to_sync(channel_layer.group_send)(
                 f'{reciever_for_group}_notify',{
@@ -152,7 +149,9 @@ def NotificationSend(instance,pk_set,action,sender,*args,**kwargs):
                     'reciever_id':reciever.id,
                     'reciever_username':reciever.username,
                     'sender_id':sender_.id,
-                    'sender_username':sender_.username
+                    'sender_username':sender_.username,
+                    'chat':chat_obj.chat,
+                    'counter':counter
                 }
             )
     

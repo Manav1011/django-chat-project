@@ -1,6 +1,7 @@
 from django import template
 import re
 from chats.models import PersonalChatRoom
+from django.contrib.auth.models import User
 
 register = template.Library()
 
@@ -16,12 +17,11 @@ def get_pk(value):
 @register.filter
 def not_viewed(value,user):
     count=0
-    for i in value:
-        if user in i.viewed_by.all():
-            pass
-        else:
-            count+=1
-    return count
+    if user in value.viewed_by.all():
+        return ''
+    else:
+        count+=1
+        return 'New Messages'
 
 @register.filter
 def get_counter(user):
@@ -39,9 +39,8 @@ def get_counter(user):
                 pass
             else:
                 count+=1
-        return count
+    return count
         
-
 
 @register.filter
 def get_id(value):

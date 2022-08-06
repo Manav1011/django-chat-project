@@ -56,8 +56,16 @@
       console.error('Chat socket closed unexpectedly');
   };
   NotificationSocket.onmessage = function(e) {
-    var data = JSON.parse(e.data);      
-    console.log(data)    
+    var data = JSON.parse(e.data);  
+    console.log(data)        
+    if (data.reciever_username == `{{request.user}}`){
+    $('.navmessagecount').addClass('bg-danger')
+    var messagecount=Number($('.navmessagecount').text()) + data.counter
+    $('.navmessagecount').text(messagecount)              
+    if ($(location).attr('href') == `${location.protocol}//${window.location.host}{% url 'home' %}`){      
+        $(`#${data.sender_id}newmessage`).text('New Messages')
+    }
+    }
 };
   </script>
 </body>

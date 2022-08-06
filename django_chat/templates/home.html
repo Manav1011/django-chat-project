@@ -21,8 +21,7 @@
       <span class="px-2 bg-secondary rounded" style='float:left; font-size:1.2rem;'>{{i | get_username}}</span>    
       <span class="px-2 rounded {{i | get_id}}isonline" style=''>{{i | is_online }}</span>    
       <script>
-        var online=`{{i | is_online }}`
-        console.log(online)
+        var online=`{{i | is_online }}`        
         if (online == 'Online'){
           $('.{{i | get_id}}isonline').addClass('bg-success rounded')
         }
@@ -30,17 +29,8 @@
           $('.{{i | get_id}}isonline').text('Last Scene: '+online)
         }
       </script>
-        <span class="bg-danger rounded new_message_count px-2" id='{{i | get_id}}newmessage' style='float:right;'></span>
-      </div>    
-      <script>
-          var messagecount=`{{k.chats.all | not_viewed:request.user}}`
-          if (messagecount > 0){
-            $(`#{{i | get_id}}newmessage`).text(`${messagecount} New Messages`)
-          }
-          else{
-            $(`#{{i | get_id}}newmessage`).text(`No New Messages`)
-          }
-      </script>
+        <span class="bg-danger rounded new_message_count px-2" id='{{i | get_id}}newmessage' style='float:right;'>{{k.chats.last | not_viewed:request.user}}</span>
+      </div>        
     </a>
     <ul class="list-group list-group-flush bg-success border-bottom border-5">
       <li class="ms-2 list-group-item mb-2" id='{{i | get_id}}lastchatspan'>{{k.chats.last}}</span></li>        
