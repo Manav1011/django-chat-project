@@ -49,8 +49,8 @@ class MessageNotificationConsumer(AsyncWebsocketConsumer):
         )
     
     @receiver(m2m_changed,sender=PersonalChatRoom.chats.through)
-    def m2m_changed_reciever(instance,action,sender,*args,**kwargs):
-        print(action)
+    def m2m_changed_reciever(instance,pk_set,action,sender,*args,**kwargs):
+        print(pk_set)        
         if MessageNotificationConsumer.user in instance.members.all():
             count=0
             room_partners={}

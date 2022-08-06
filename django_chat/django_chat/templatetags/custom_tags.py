@@ -1,5 +1,6 @@
 from django import template
 import re
+from chats.models import PersonalChatRoom
 
 register = template.Library()
 
@@ -22,6 +23,25 @@ def not_viewed(value,user):
             count+=1
     return count
 
+@register.filter
+def get_counter(user):
+    chatroom_obj=PersonalChatRoom.objects.filter(members=user)             
+    room_partners={}
+    for i in chatroom_obj:
+        room_partners.update({i.members.all().exclude(username=user.username):i.members.all().exclude(username=user.username)})        
+    RoomObjects={}
+    for i in chatroom_obj:                
+        RoomObjects.update({i:i})
+    count=0
+    for i in RoomObjects:
+        for j in i.chats.all():
+            if user in j.viewed_by.all():
+                pass
+            else:
+                count+=1
+        return count
+        
+
 
 @register.filter
 def get_id(value):
@@ -39,3 +59,7 @@ def is_online(value):
     for i in value:
         return i.first_name
     
+    
+@register.filter
+def get_pk(value):
+    return value.pk

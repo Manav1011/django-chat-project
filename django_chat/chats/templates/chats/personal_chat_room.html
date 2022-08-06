@@ -5,8 +5,13 @@
     .messagebody::-webkit-scrollbar {
         display: none;
     }
+    html, body {
+      height: 100%;
+      {% comment %} background-color:red; {% endcomment %}
+    }
 </style>
-<div class="container card shadow-lg p-3 mb-5 rounded other-components" style="font-family: 'Open Sans', sans-serif !important;">
+{% comment %} maindiv {% endcomment %}
+<div class="container card shadow-lg p-3 rounded other-components border" style="font-family: 'Open Sans', sans-serif !important;">
     <h5 class="card-title"><a href="{% url 'home' %}" class="bi bi-arrow-left me-3 btn btn-outline-danger">Go Back</a>{{chat_partner}}</h5>
     <span style='' class='{{chat_partner.id}} text-center' >{{chat_partner.first_name}}</span>
     <script>
@@ -20,7 +25,8 @@
         $('.{{chat_partner.id}}').text('Last Scene: '+online)
       }
     </script>
-    <div class="card-body messagebody" id='messagebody' style="overflow-y: scroll; height:60vh;">
+    {% comment %} chatbox {% endcomment %}
+    <div class="card-body messagebody mb-2" id='messagebody' style="overflow-y: scroll;">
         {% for i in RoomObject.chats.all %}
         {% if i.sender == request.user %}
         <div class="card border-0 other-components senderchats">
@@ -38,10 +44,18 @@
             
         {% endfor %}
     </div>
+    <script>
+      $(document).ready(function(){
+           $('#messagebody').height($('body').innerHeight()-240)
+            console.log($('body').innerHeight())  
+      })
+    </script>
+    {% comment %} form {% endcomment %}
     <form class="d-flex" role="search">
         <input class="form-control me-2" type="text" placeholder="Type a message..." id='ChatInput'>
         <button class="btn btn-outline-success btn-sm" type="submit" id='ChatSubmit'>Send</button>
-      </form>      
+      </form>  
+    </div>    
   <script>    
     var objDiv = document.getElementById("messagebody");
     objDiv.scrollTop = objDiv.scrollHeight;
