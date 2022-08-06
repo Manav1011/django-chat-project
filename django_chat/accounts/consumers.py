@@ -10,18 +10,12 @@ from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
 import datetime
 
-class MessageNotificationConsumer(AsyncWebsocketConsumer):
+class OnlineUserConsumer(AsyncWebsocketConsumer):
     async def connect(self):     
         await self.accept()  
         self.user=self.scope['user']
         await database_sync_to_async(self.online_user)()
         print(self.user.first_name)
-        MessageNotificationConsumer.user=self.scope['user']
-        MessageNotificationConsumer.group_name=f'chat_notifcation_{self.scope["url_route"]["kwargs"]["user"]}'
-        await self.channel_layer.group_add(
-            MessageNotificationConsumer.group_name,
-            self.channel_name
-        )        
         
     def online_user(self):
         self.user.first_name='Online'
@@ -38,40 +32,6 @@ class MessageNotificationConsumer(AsyncWebsocketConsumer):
         print(self.user.first_name)
         print(f'last scene is:{self.user.last_name}')
     
-    async def chat_notification(self,event):
-        await self.send(
-            json.dumps({
-                'type':'chat_notify',
-                'count':event['count'],
-                'partner_id':event['partner_id'],
-                'chat':event['chat']
-            })
-        )
-    
-    @receiver(m2m_changed,sender=PersonalChatRoom.chats.through)
-    def m2m_changed_reciever(instance,pk_set,action,sender,*args,**kwargs):
-        print(pk_set)        
-        if MessageNotificationConsumer.user in instance.members.all():
-            count=0
-            room_partners={}
-            for i in instance.members.all().exclude(username=MessageNotificationConsumer.user.username):
-                room_partners.update({i:i})
-            partner_id=None
-            for i in room_partners:
-                partner_id=i.id
-            for i in instance.chats.all():
-                i.viewed_by.add(i.sender)
-                
-        channel_layer=get_channel_layer()                         
-        async_to_sync(channel_layer.group_send)(
-            MessageNotificationConsumer.group_name,           
-            {
-                'type':'chat_notification',
-                'count':count,
-                'partner_id':partner_id,
-                'chat':str(instance.chats.last())
-            }
-        )        
                     
         
 class PersonalChatConsumer(AsyncWebsocketConsumer):    
@@ -82,12 +42,13 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
     
     async def connect(self):               
         await self.accept()
+        PersonalChatConsumer.user=self.scope['user']                     
         self.RoomObjName=self.scope["url_route"]["kwargs"]["RoomObjName"]
         await database_sync_to_async(self.online_members)(self.RoomObjName,self.scope['user'])
-        self.group_name=f'chat_{self.scope["url_route"]["kwargs"]["RoomName"]}'
+        PersonalChatConsumer.group_name=f'chat_{self.scope["url_route"]["kwargs"]["RoomName"]}'
         print(self.group_name)
         await self.channel_layer.group_add(
-            self.group_name,
+            PersonalChatConsumer.group_name,
             self.channel_name
         )
     
@@ -112,7 +73,6 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
         ChatObj=PersonalChat.objects.create(chat=message,sender=user,reciever=chat_partner)
         for i in self.RoomObj.members_online.all():            
             ChatObj.viewed_by.add(i)
-            
     
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -143,5 +103,10 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
             'message': message,
             'sender':event['sender'],
             'reciever':event['reciever']
-        }))
+        }))      
     
+    @receiver(m2m_changed,sender=PersonalChatRoom.chats.through)
+    def m2m_changed_reciever(instance,pk_set,action,sender,*args,**kwargs):
+        print(pk_set)                            
+        for i in instance.chats.all():
+            i.viewed_by.add(i.sender) 

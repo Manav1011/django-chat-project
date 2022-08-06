@@ -43,11 +43,13 @@
         {% endif %}
             
         {% endfor %}
-    </div>
+    </div>    
     <script>
       $(document).ready(function(){
            $('#messagebody').height($('body').innerHeight()-240)
             console.log($('body').innerHeight())  
+            var objDiv = document.getElementById("messagebody");
+            objDiv.scrollTop = objDiv.scrollHeight;       
       })
     </script>
     {% comment %} form {% endcomment %}
@@ -56,10 +58,6 @@
         <button class="btn btn-outline-success btn-sm" type="submit" id='ChatSubmit'>Send</button>
       </form>  
     </div>    
-  <script>    
-    var objDiv = document.getElementById("messagebody");
-    objDiv.scrollTop = objDiv.scrollHeight;
-     </script>
       <script>
         var RoomName=`{{RoomObject.RoomName | remove_unnecessary}}`
         console.log(RoomName)
