@@ -23,31 +23,42 @@
    {% include 'nav.html' %}
    {% block content %}
    {% endblock content %}
-   <script>
-    var user=`{{request.user.username | remove_unnecessary}}`
+   {% comment %} For Online purposes {% endcomment %}
+   <script>    
+    const OnlineUsersSocket=new WebSocket(
+      'ws://'
+      + window.location.host
+      + '/ws/'      
+      + 'onlineusers/'
+  );
+    
+  
+  OnlineUsersSocket.onclose = function(e) {
+      console.error('Chat socket closed unexpectedly');
+  };
+  </script>
+  {% comment %} For message notification purposes {% endcomment %}
+  <script>
+    var userforgroup=`{{request.user.username | remove_unnecessary}}`
+    var user=`{{request.user}}`
     const NotificationSocket=new WebSocket(
       'ws://'
       + window.location.host
       + '/ws/'      
-      + 'notify/'
+      +userforgroup
+      +'/'
+      +user
+      + '/notify/'
   );
     
-  
-    NotificationSocket.onmessage=function(response){
-        var data=JSON.parse(response.data)
-        console.log(data)
-        if (data.type =='chat_notify'){
-          {% comment %} $('.navmessagecount').text(data.count) {% endcomment %}
-          {% comment %} var newmessagespan=document.getElementById(data.partner_id) {% endcomment %}
-          {% comment %} var lastchatspan=document.getElementById(`${data.partner_id}lastchatspan`) {% endcomment %}
-          {% comment %} newmessagespan.innerHTML=`${data.count} New Messages` {% endcomment %}
-          {% comment %} lastchatspan.innerHTML=`${data.chat}` {% endcomment %}
-        }
-    }
   
     NotificationSocket.onclose = function(e) {
       console.error('Chat socket closed unexpectedly');
   };
+  NotificationSocket.onmessage = function(e) {
+    var data = JSON.parse(e.data);      
+    console.log(data)    
+};
   </script>
 </body>
 </html>

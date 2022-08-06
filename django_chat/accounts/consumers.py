@@ -9,6 +9,7 @@ from channels.layers import get_channel_layer
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
 import datetime
+from django_chat.templatetags.custom_tags import remove_unnecessary
 
 class OnlineUserConsumer(AsyncWebsocketConsumer):
     async def connect(self):     
@@ -110,3 +111,50 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
         print(pk_set)                            
         for i in instance.chats.all():
             i.viewed_by.add(i.sender) 
+            
+            
+class NotificationConsumer(AsyncWebsocketConsumer):
+    async def connect(self):   
+        await self.accept()              
+        NotificationConsumer.group_name=f'{self.scope["url_route"]["kwargs"]["userforgroup"]}_notify'
+        print(NotificationConsumer.group_name)
+        await self.channel_layer.group_add(
+            NotificationConsumer.group_name,
+            self.channel_name
+        )        
+        
+        
+    async def disconnect(self,close_code):
+        pass
+    
+    async def notifications(self,event):
+        await self.send(
+            json.dumps({
+                'reciever_id':event['reciever_id'],
+                'reciever_username':event['reciever_username'],
+                'sender_id':event['sender_id'],
+                'sender_username':event['sender_username']
+            })
+        )
+    
+@receiver(m2m_changed,sender=PersonalChatRoom.chats.through)
+def NotificationSend(instance,pk_set,action,sender,*args,**kwargs):
+    if action == 'post_add':
+        chat_obj=instance.chats.last()
+        sender_=chat_obj.sender
+        reciever=chat_obj.reciever
+        reciever_for_group=remove_unnecessary(reciever.username)
+        if reciever not in instance.members_online.all() and reciever not in chat_obj.viewed_by.all():
+            channel_layer=get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f'{reciever_for_group}_notify',{
+                    'type':'notifications',
+                    'reciever_id':reciever.id,
+                    'reciever_username':reciever.username,
+                    'sender_id':sender_.id,
+                    'sender_username':sender_.username
+                }
+            )
+    
+        
+    
