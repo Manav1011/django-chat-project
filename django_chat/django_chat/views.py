@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from chats.models import PersonalChat,PersonalChatRoom
+from django.http import HttpResponse
 
 
 @login_required
-def home_view(request):    
+def home_chat_view(request):    
     user=request.user
     chatroom_obj=PersonalChatRoom.objects.filter(members=user)             
     room_partners={}
@@ -15,4 +16,4 @@ def home_view(request):
         RoomObjects.update({i:i})
     combined=zip(room_partners,RoomObjects)
     context={'chatroom_objects': chatroom_obj,'sender':user,'parners':room_partners,'RoomObjects':RoomObjects,'combined':combined}   
-    return render(request,'home.html',context)
+    return render(request,'chat.html',context)

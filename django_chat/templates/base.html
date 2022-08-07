@@ -23,20 +23,6 @@
    {% include 'nav.html' %}
    {% block content %}
    {% endblock content %}
-   {% comment %} For Online purposes {% endcomment %}
-   <script>    
-    const OnlineUsersSocket=new WebSocket(
-      'ws://'
-      + window.location.host
-      + '/ws/'      
-      + 'onlineusers/'
-  );
-    
-  
-  OnlineUsersSocket.onclose = function(e) {
-      console.error('Chat socket closed unexpectedly');
-  };
-  </script>
   {% comment %} For message notification purposes {% endcomment %}
   <script>
     var userforgroup=`{{request.user.username | remove_unnecessary}}`
@@ -64,6 +50,8 @@
     $('.navmessagecount').text(messagecount)              
     if ($(location).attr('href') == `${location.protocol}//${window.location.host}{% url 'home' %}`){      
         $(`#${data.sender_id}newmessage`).text('New Messages')
+        $(`#${data.sender_id}lastchatspan`).text(data.chat)
+        $(`#${data.sender_id}isonline`).text(data.sender_state)
     }
     }
 };

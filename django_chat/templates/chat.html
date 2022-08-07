@@ -1,0 +1,36 @@
+{% extends 'home.html' %}
+{% load custom_tags %}
+{% block chatblock %}
+<div class="card MainContent" style="width: 100%;">
+    {% for i,k in combined %}
+    {% for j in i %}
+    <a href="{% url 'chats:create_personal_room' pk=j.id %}" class='btn p-0'>
+      {% endfor %}
+    <div>  
+      
+      <span class="px-2 bg-secondary rounded" style='float:left; font-size:1.2rem;'>{{i | get_username}}</span>    
+      <span class="px-2 rounded {{i | get_id}}isonline" style=''>{{i | is_online }}</span>    
+      <script>
+        var online=`{{i | is_online }}`        
+        if (online == 'Online'){
+          $('.{{i | get_id}}isonline').addClass('bg-success rounded')
+        }
+        else{
+          $('.{{i | get_id}}isonline').text('Last Scene: '+online)
+        }
+      </script>
+        <span class="bg-danger rounded new_message_count px-2" id='{{i | get_id}}newmessage' style='float:right;'>{{k.chats.last | not_viewed:request.user}}</span>
+      </div>        
+    </a>
+    <ul class="list-group list-group-flush bg-success border-bottom border-5">
+      <li class="ms-2 list-group-item mb-2" id='{{i | get_id}}lastchatspan'>{{k.chats.last}}</span></li>        
+    </ul>
+      {% empty %}      
+      <div class="card-header bg-secondary">
+      </div>
+      <ul class="list-group list-group-flush bg-success border-bottom border-5">
+        <li class="ms-2 list-group-item mb-2">No Chats Yet!!</span></li>        
+      </ul>
+    {% endfor %}
+</div>
+{% endblock chatblock %}

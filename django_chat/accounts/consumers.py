@@ -11,26 +11,6 @@ from django.contrib.auth.models import User
 import datetime
 from django_chat.templatetags.custom_tags import remove_unnecessary
 
-class OnlineUserConsumer(AsyncWebsocketConsumer):
-    async def connect(self):     
-        await self.accept()  
-        self.user=self.scope['user']
-        await database_sync_to_async(self.online_user)()        
-        
-    def online_user(self):
-        self.user.first_name='Online'
-        self.user.save()
-        
-    def offline_user(self):
-        now=datetime.datetime.now()
-        time=now.strftime("%H:%M")
-        self.user.first_name=str(time)
-        self.user.save()
-        
-    async def disconnect(self,close_code):
-        await database_sync_to_async(self.offline_user)()        
-    
-                    
         
 class PersonalChatConsumer(AsyncWebsocketConsumer):    
         
@@ -109,17 +89,29 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
             
             
 class NotificationConsumer(AsyncWebsocketConsumer):
+        
     async def connect(self):   
-        await self.accept()              
+        await self.accept()       
+        self.user=self.scope['user']
+        await database_sync_to_async(self.online_user)()         
         NotificationConsumer.group_name=f'{self.scope["url_route"]["kwargs"]["userforgroup"]}_notify'        
         await self.channel_layer.group_add(
             NotificationConsumer.group_name,
             self.channel_name
         )        
         
+    def online_user(self):
+        self.user.first_name='Online'
+        self.user.save()
+        
+    def offline_user(self):
+        now=datetime.datetime.now()
+        time=now.strftime("%H:%M")
+        self.user.first_name=str(time)
+        self.user.save()
         
     async def disconnect(self,close_code):
-        pass
+        await database_sync_to_async(self.offline_user)()       
     
     async def notifications(self,event):
         await self.send(

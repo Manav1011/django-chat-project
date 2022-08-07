@@ -15,12 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include,re_path
-from .views import home_view
+from .views import home_chat_view
 from allauth.account.views import LoginView
 login = LoginView.as_view()
 urlpatterns = [
     path('admin/', admin.site.urls),
-    re_path(r'^home/$',home_view,name='home'),    
+    re_path(r'^home_chat/$',home_chat_view,name='home'),    
     path("", login, name="account_login"),
     path('accounts/', include('allauth.urls')),
     path('accounts_/', include('accounts.urls')),
