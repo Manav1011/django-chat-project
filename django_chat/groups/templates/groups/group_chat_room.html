@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load custom_tags %}
+<style>
+    .messagebody::-webkit-scrollbar {
+        display: none;
+    }
+    html, body {
+      height: 100%;      
+    }
+</style>
+{% comment %} maindiv {% endcomment %}
+<div class="container card shadow-lg p-3 rounded other-components border" style="font-family: 'Open Sans', sans-serif !important;">
+    <h5 class="card-title"><a href="{% url 'home_groups' %}" class="bi bi-arrow-left me-3 btn btn-outline-danger">Go Back</a>{{qs.RoomName}}</h5>
+    <div class="card-body messagebody mb-2" id='messagebody' style="overflow-y: scroll;">
+        {% for i in qs.chats.all %}
+        {% if i.sender == request.user %}
+        <div class="card border-0 other-components senderchats">
+            <div class="card-body">
+              <span class='bg-success bg-gradient px-3 rounded' style='float:right'>{{i}}</span>
+            </div>
+          </div>
+        {% else %}
+        <div class="card border-0 mb-4 other-components recieverchats">
+            <div class="m-0 p-0">
+                <span class='' style='color:#ff6f0f;'>{{i.sender}}</span>
+            </div>
+            <div class="card-body m-0 p-0">
+              <span class='bg-secondary bg-gradient px-3 m-0 rounded' style='float:left'>{{i}}</span>
+            </div>
+          </div>
+        {% endif %}
+            
+        {% endfor %}
+    </div>    
+    <script>
+      $(document).ready(function(){
+           $('#messagebody').height($('body').innerHeight()-240)            
+            var objDiv = document.getElementById("messagebody");
+            objDiv.scrollTop = objDiv.scrollHeight;       
+      })
+    </script>
+    {% comment %} form {% endcomment %}
+    <form class="d-flex" role="search">
+        <input class="form-control me-2" type="text" placeholder="Type a message..." id='ChatInput'>
+        <button class="btn btn-outline-success btn-sm" type="submit" id='GroupChatSubmit'>Send</button>
+      </form>  
+    </div>    
+      <script>
+        var RoomName=`{{qs.RoomName | remove_unnecessary}}`    
+        var RoomId=Number(`{{qs.id}}`)
+        var sender=`{{request.user.username}}`    
+        const GroupChatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/group_chat/'
+            +`${RoomId}/`
+            + RoomName
+            + '/'
+        );
+        
+        GroupChatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);  
+            if (data.sender== `{{request.user.username}}`){
+                $('#messagebody').append(
+                    `<div>
+                        <div class="card-body">
+                          <span class='bg-success bg-gradient px-3 rounded' style='float:right'>${data.message}</span>
+                        </div>
+                      </div>
+                      <br>
+                    `
+                )
+            }
+            else{
+                $('#messagebody').append(
+                    ` <div class=''>
+                        <div class="m-0 p-0">
+                            <span class='' style='color:#ff6f0f;'>${data.sender}</span>
+                        </div>
+                        <div class="card-body m-0 p-0">
+                          <span class='bg-secondary bg-gradient px-3 m-0 rounded' style='float:left'>${data.message}</span>
+                        </div>
+                      </div>
+                      <br>
+                    `
+                )
+            }
+            var objDiv = document.getElementById("messagebody");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        };
+
+        GroupChatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };      
+        
+        document.querySelector('#GroupChatSubmit').onclick = function(e) {
+          e.preventDefault();
+          const messageInputDom = document.querySelector('#ChatInput');
+          const message = messageInputDom.value;
+          GroupChatSocket.send(JSON.stringify({
+              'sender':`{{request.user.username}}`,
+              'GroupRoomId':`{{qs.id}}`,
+              'message': message,
+          }));
+          messageInputDom.value = '';
+      };
+     </script>
+{% endblock content %}

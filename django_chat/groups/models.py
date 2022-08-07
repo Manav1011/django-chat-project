@@ -9,10 +9,10 @@ from django.db.models.signals import post_save,m2m_changed
 
 class GroupChat(models.Model):
     chat=models.CharField(max_length=500,null=False,blank=False)
-    sender=models.ForeignKey(User,on_delete=models.CASCADE,related_name='sender')
-    reciever=models.ForeignKey(User,related_name='reciever',on_delete=models.CASCADE,null=False,blank=False)
+    sender=models.ForeignKey(User,on_delete=models.CASCADE,related_name='GroupSender')
+    reciever=models.ManyToManyField(User,related_name='Groupreciever',null=False,blank=False)
     timestamp=models.DateTimeField(auto_now_add=True)   
-    viewed_by=models.ManyToManyField(User,null=True,blank=True)
+    viewed_by=models.ManyToManyField(User,null=True,blank=True,related_name='GroupViewedBy')
     
     def __str__(self):
         return f'{self.chat}'
@@ -54,12 +54,12 @@ class GroupChat(models.Model):
         
     
 class GroupChatRoom(models.Model):    
-    RoomName=models.CharField(max_length=255,blank=True,null=True)
-    members=models.ManyToManyField(User,related_name='members')
-    chats=models.ManyToManyField(GroupChat,null=True,blank=True)
+    RoomName=models.CharField(max_length=255)
+    members=models.ManyToManyField(User,related_name='groupmembers')
+    chats=models.ManyToManyField(GroupChat,null=True,blank=True,related_name='GroupChats')
     timestamp=models.DateTimeField(auto_now_add=True)
     last_updated=models.DateTimeField(auto_now=True)
-    members_online=models.ManyToManyField(User,blank=True,null=True,related_name='online_members')
+    members_online=models.ManyToManyField(User,blank=True,null=True,related_name='group_online_members')
     
     # objects=PersonalChatRoomManager()
     

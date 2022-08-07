@@ -1,7 +1,10 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from chats.models import PersonalChat,PersonalChatRoom
-from django.http import HttpResponse
+from groups.models import GroupChat,GroupChatRoom
+from django.http import HttpResponse,HttpResponseRedirect
+from django.urls import reverse
+from groups.forms import NewGroupForm
 
 
 @login_required
@@ -17,3 +20,19 @@ def home_chat_view(request):
     combined=zip(room_partners,RoomObjects)
     context={'chatroom_objects': chatroom_obj,'sender':user,'parners':room_partners,'RoomObjects':RoomObjects,'combined':combined}   
     return render(request,'chat.html',context)
+
+
+@login_required
+def group_chat_view(request):    
+    GroupObj=GroupChatRoom.objects.all().filter(members=request.user)
+    form=NewGroupForm(request.POST or None)
+    context={
+        'GroupObj':GroupObj,
+        'form':form
+    }
+    if request.method=='POST':
+        object=form.save()        
+        object.members.add(request.user)
+        return HttpResponseRedirect(reverse('home_groups'))    
+    
+    return render(request,'groups.html',context)

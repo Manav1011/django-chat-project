@@ -50,9 +50,17 @@
     $('.navmessagecount').text(messagecount)              
     if ($(location).attr('href') == `${location.protocol}//${window.location.host}{% url 'home' %}`){      
         $(`#${data.sender_id}newmessage`).text('New Messages')
-        $(`#${data.sender_id}lastchatspan`).text(data.chat)
-        $(`#${data.sender_id}isonline`).text(data.sender_state)
+        $(`#${data.sender_id}lastchatspan`).text(data.chat)        
     }
+    }
+    else{      
+      $('.navmessagecount').addClass('bg-danger')
+      var messagecount=Number($('.navmessagecount').text()) + data.counter
+      $('.navmessagecount').text(messagecount)   
+      if ($(location).attr('href') == `${location.protocol}//${window.location.host}{% url 'home_groups' %}`){            
+          $(`#${data.groupid}groupmessage`).text('New Messages')
+          $(`#${data.groupid}lastchat`).text(data.chat)
+      }
     }
 };
   </script>

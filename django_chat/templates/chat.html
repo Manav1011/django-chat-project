@@ -1,6 +1,12 @@
 {% extends 'home.html' %}
 {% load custom_tags %}
 {% block chatblock %}
+<script>
+  $(document).ready(function() {
+    $('.group-section').removeClass('border-top border-start border-success')
+    $('.chat-section').addClass('border-top border-end border-success')
+  })
+</script>
 <div class="card MainContent" style="width: 100%;">
     {% for i,k in combined %}
     {% for j in i %}
@@ -16,15 +22,23 @@
           $('.{{i | get_id}}isonline').addClass('bg-success rounded')
         }
         else{
-          $('.{{i | get_id}}isonline').text('Last Scene: '+online)
+          $('.{{i | get_id}}isonline').text('Last Seen: '+online)
         }
       </script>
+      {% if k.chats.last %}
         <span class="bg-danger rounded new_message_count px-2" id='{{i | get_id}}newmessage' style='float:right;'>{{k.chats.last | not_viewed:request.user}}</span>
+        {% endif %}
       </div>        
     </a>
+    {% if k.chats.last %}
     <ul class="list-group list-group-flush bg-success border-bottom border-5">
       <li class="ms-2 list-group-item mb-2" id='{{i | get_id}}lastchatspan'>{{k.chats.last}}</span></li>        
     </ul>
+    {% else %}
+    <ul class="list-group list-group-flush bg-success border-bottom border-5">
+      <li class="ms-2 list-group-item mb-2" id='{{i | get_id}}lastchatspan'>No Chats Yet</span></li>        
+    </ul>
+    {% endif %}
       {% empty %}      
       <div class="card-header bg-secondary">
       </div>

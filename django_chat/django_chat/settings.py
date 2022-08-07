@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'bootstrap5',
     'accounts',
     'chats',
+    'groups',
     'allauth',
     'allauth.account',
     'allauth.socialaccount'

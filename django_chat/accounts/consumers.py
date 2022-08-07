@@ -4,6 +4,7 @@ from asgiref.sync import async_to_sync
 from django.dispatch import receiver
 from django.db.models.signals import m2m_changed
 from chats.models import PersonalChat,PersonalChatRoom
+from groups.models import GroupChatRoom
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from channels.db import database_sync_to_async
@@ -113,9 +114,10 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def disconnect(self,close_code):
         await database_sync_to_async(self.offline_user)()       
     
-    async def notifications(self,event):
+    async def personal_notifications(self,event):
         await self.send(
             json.dumps({
+                'type':'Personal Notification',
                 'reciever_id':event['reciever_id'],
                 'reciever_username':event['reciever_username'],
                 'sender_id':event['sender_id'],
@@ -124,7 +126,18 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 'counter':event['counter'],
             })
         )
-    
+        
+    async def group_notifications(self,event):
+        await self.send(
+            json.dumps({
+                'type':'Group Notification',
+                'chat':event['chat'],
+                'counter':event['counter'],
+                'groupid':event['groupid'],
+            })
+        )
+       
+
 @receiver(m2m_changed,sender=PersonalChatRoom.chats.through)
 def NotificationSend(instance,pk_set,action,sender,*args,**kwargs):
     if action == 'post_add':
@@ -137,7 +150,7 @@ def NotificationSend(instance,pk_set,action,sender,*args,**kwargs):
             channel_layer=get_channel_layer()
             async_to_sync(channel_layer.group_send)(
                 f'{reciever_for_group}_notify',{
-                    'type':'notifications',
+                    'type':'personal_notifications',
                     'reciever_id':reciever.id,
                     'reciever_username':reciever.username,
                     'sender_id':sender_.id,
@@ -148,4 +161,22 @@ def NotificationSend(instance,pk_set,action,sender,*args,**kwargs):
             )
     
         
-    
+@receiver(m2m_changed,sender=GroupChatRoom.chats.through)
+def group_message_update(sender,instance,action,*args,**kwargs):
+    if action == 'post_add':
+        chat_obj=instance.chats.last()
+        sender_=chat_obj.sender
+        reciever=chat_obj.reciever.all()        
+        for i in reciever:
+            if i not in instance.members_online.all() and i not in chat_obj.viewed_by.all():                
+                reciever_for_group=remove_unnecessary(i.username)
+                counter=1
+                channel_layer=get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'{reciever_for_group}_notify',{
+                        'type':'group_notifications',                        
+                        'chat':chat_obj.chat,
+                        'counter':counter,
+                        'groupid':instance.id,
+                    }
+                )

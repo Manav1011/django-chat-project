@@ -1,0 +1,68 @@
+{% extends 'home.html' %}
+{% load custom_tags %}
+{% block chatblock %}
+{% load bootstrap5 %}
+<script>
+$(document).ready(function() {
+    $('.chat-section').removeClass('border-top border-end border-success')
+    $('.group-section').addClass('border-top border-start border-success')
+  })
+</script>
+{% if GroupObj %}
+<div class="card MainContent" style="width: 100%;">
+  {% for i in GroupObj %}  
+    <a href="{% url 'groups:group_chat_room' pk=i.id %}" class='btn p-0'>
+  <div>  
+    <span class="px-2 bg-secondary rounded" style='float:left; font-size:1.2rem;'>{{i.RoomName}}</span>        
+    </div>        
+    <span class="bg-danger rounded new_message_count px-2" id='{{i.id}}groupmessage' style='float:right;'></span>
+  </a>  
+  {% if i.chats.last %}
+  <ul class="list-group list-group-flush bg-success border-bottom border-5">
+    <li class="ms-2 list-group-item mb-2" id='{{i.id}}lastchat'>{{i.chats.last}}</span></li>        
+  </ul>
+    {% else %}        
+    <ul class="list-group list-group-flush bg-success border-bottom border-5">
+      <li class="ms-2 list-group-item mb-2">No Chats Yet!!</span></li>        
+    </ul>
+    {% endif %}
+</div>
+{% endfor %}
+{% comment %} <i class="bi bi-plus-circle-fill" style='font-size:3rem; color:#ff6f0f'></i> {% endcomment %}
+<h1>  
+  <i class="bi btn bi-plus-circle-fill btn-outline-secondary bg-gradient" style="position:fixed; bottom:5px; width:100%; z-index:1; background-color:#0c2431" data-bs-toggle="modal" data-bs-target="#GroupModal" data-bs-whatever="@mdo">Click here to add a new group</i> 
+</h1>
+{% else %}
+<div class="container text-center mt-5 reactive-text">
+    <h1>
+        You are not in any groups yet!<br>
+        <i class="bi btn bi-plus-circle btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#GroupModal" data-bs-whatever="@mdo">Click here to add a new group</i> 
+    </h1>
+</div>
+
+
+{% comment %} Modal {% endcomment %}
+{% endif %}
+<div class="modal fade other-components" id="GroupModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add New Group</h5>          
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning" role="alert">
+          Note: You do not have to select you username in the members field
+        </div>
+       <form action="{% url 'home_groups' %}" method="post">
+        {%bootstrap_form form%}      
+        {% csrf_token %}            
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Create</button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+{% endblock chatblock %}
