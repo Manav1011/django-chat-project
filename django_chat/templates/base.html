@@ -42,24 +42,35 @@
       console.error('Chat socket closed unexpectedly');
   };
   NotificationSocket.onmessage = function(e) {
-    var data = JSON.parse(e.data);  
-    console.log(data)        
-    if (data.reciever_username == `{{request.user}}`){
+    var data = JSON.parse(e.data);      
     $('.navmessagecount').addClass('bg-danger')
     var messagecount=Number($('.navmessagecount').text()) + data.counter
-    $('.navmessagecount').text(messagecount)              
-    if ($(location).attr('href') == `${location.protocol}//${window.location.host}{% url 'home' %}`){      
+    $('.navmessagecount').text(messagecount)     
+    if ($(location).attr('href') == `${location.protocol}//${window.location.host}{% url 'home' %}`){    
+      if(data.type == 'Group Notification'){        
+        $('.group-section').append(`
+        <span class="badge text-bg-success">New!!</span>
+        `)
+      }
+      if (data.reciever_username == `{{request.user}}`){  
         $(`#${data.sender_id}newmessage`).text('New Messages')
         $(`#${data.sender_id}lastchatspan`).text(data.chat)        
     }
     }
     else{      
+
+      
       $('.navmessagecount').addClass('bg-danger')
       var messagecount=Number($('.navmessagecount').text()) + data.counter
       $('.navmessagecount').text(messagecount)   
-      if ($(location).attr('href') == `${location.protocol}//${window.location.host}{% url 'home_groups' %}`){            
+      if ($(location).attr('href') == `${location.protocol}//${window.location.host}{% url 'home_groups' %}`){  
           $(`#${data.groupid}groupmessage`).text('New Messages')
           $(`#${data.groupid}lastchat`).text(data.chat)
+          if(data.type == 'Personal Notification'){            
+            $('.chat-section').append(`
+            <span class="badge text-bg-success">New!!</span>
+            `)
+          }
       }
     }
 };

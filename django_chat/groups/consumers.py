@@ -13,6 +13,9 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
     def onlineusers(self,RoomId,user):
         qs=GroupChatRoom.objects.get(id=RoomId)
         qs.members_online.add(user)    
+        for i in qs.members_online.all():        
+            for j in qs.chats.all():
+                j.viewed_by.add(i)
         
     async def connect(self):
         self.group_name=f"GroupChatRoom_{self.scope['url_route']['kwargs']['RoomName']}"

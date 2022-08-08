@@ -15,7 +15,7 @@ $(document).ready(function() {
   <div>  
     <span class="px-2 bg-secondary rounded" style='float:left; font-size:1.2rem;'>{{i.RoomName}}</span>        
     </div>        
-    <span class="bg-danger rounded new_message_count px-2" id='{{i.id}}groupmessage' style='float:right;'></span>
+    <span class="bg-danger rounded new_message_count px-2" id='{{i.id}}groupmessage' style='float:right;'>{{GroupObj | not_in_the_chat:request.user}}</span>
   </a>  
   {% if i.chats.last %}
   <ul class="list-group list-group-flush bg-success border-bottom border-5">

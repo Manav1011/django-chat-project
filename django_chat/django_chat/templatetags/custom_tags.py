@@ -15,6 +15,18 @@ def get_pk(value):
     return value.pk
 
 @register.filter
+def not_in_the_chat(value,user):
+    chatobj=None
+    for i in value:
+        chatobj=i.chats.last()
+            
+    if user not in chatobj.viewed_by.all():
+        return 'New Messages'
+    else:
+        return ''
+    
+
+@register.filter
 def not_viewed(value,user):
     count=0
     if user in value.viewed_by.all():
