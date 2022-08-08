@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-#^6t42r@jorvr^^%u#x$k22sshad+ehseb7lnz&rq+p4@nw2&$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.1.6','127.0.0.1','localhost']
 
 
 # Application definition
@@ -42,9 +42,9 @@ AUTHENTICATION_BACKENDS = [
 
 # Allauth specifications
 ACCOUNT_SESSION_REMEMBER =False
-ACCOUNT_SIGNUP_REDIRECT_URL='accounts:email_verification_sent'
+ACCOUNT_SIGNUP_REDIRECT_URL='account_email_verification_sent'
 ACCOUNT_EMAIL_REQUIRED=True
-ACCOUNT_EMAIL_VERIFICATION='mandatojry'
+ACCOUNT_EMAIL_VERIFICATION='mandatory'
 ACCOUNT_AUTHENTICATION_METHOD=('username_email')
 
 ASGI_APPLICATION='django_chat.asgi.application'
@@ -159,6 +159,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS=[
     BASE_DIR.joinpath('static')
 ]
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
