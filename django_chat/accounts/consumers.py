@@ -144,6 +144,8 @@ def NotificationSend(instance,pk_set,action,sender,*args,**kwargs):
         chat_obj=instance.chats.last()
         sender_=chat_obj.sender
         reciever=chat_obj.reciever
+        instance.last_updated=datetime.datetime.now()
+        instance.save()
         reciever_for_group=remove_unnecessary(reciever.username)
         if reciever not in instance.members_online.all() and reciever not in chat_obj.viewed_by.all():
             counter=1
@@ -166,7 +168,9 @@ def group_message_update(sender,instance,action,*args,**kwargs):
     if action == 'post_add':
         chat_obj=instance.chats.last()
         sender_=chat_obj.sender
-        reciever=chat_obj.reciever.all()        
+        reciever=chat_obj.reciever.all()    
+        instance.last_updated=datetime.datetime.now()
+        instance.save()    
         for i in reciever:
             if i not in instance.members_online.all() and i not in chat_obj.viewed_by.all():                
                 reciever_for_group=remove_unnecessary(i.username)

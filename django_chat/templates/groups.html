@@ -9,8 +9,8 @@ $(document).ready(function() {
   })
 </script>
 {% if GroupObj %}
-<div class="card MainContent" style="width: 100%;">
   {% for i in GroupObj %}  
+  <div class="card MainContent" style="width: 100%;">
     <a href="{% url 'groups:group_chat_room' pk=i.id %}" class='btn p-0'>
   <div>  
     <span class="px-2 bg-secondary rounded" style='float:left; font-size:1.2rem;'>{{i.RoomName}}</span>        

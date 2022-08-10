@@ -58,7 +58,7 @@ class GroupChatRoom(models.Model):
     members=models.ManyToManyField(User,related_name='groupmembers')
     chats=models.ManyToManyField(GroupChat,null=True,blank=True,related_name='GroupChats')
     timestamp=models.DateTimeField(auto_now_add=True)
-    last_updated=models.DateTimeField(auto_now=True)
+    last_updated=models.DateTimeField(null=True, blank=True)
     members_online=models.ManyToManyField(User,blank=True,null=True,related_name='group_online_members')
     
     # objects=PersonalChatRoomManager()

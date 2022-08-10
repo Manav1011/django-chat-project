@@ -18,9 +18,12 @@ def get_pk(value):
 def not_in_the_chat(value,user):    
     for i in value:
         chatobj=i.chats.last()
+        if chatobj:
             
-        if user not in chatobj.viewed_by.all():
-            return 'New Messages'
+            if user not in chatobj.viewed_by.all():
+                return 'New Messages'
+            else:
+                return ''
         else:
             return ''
     

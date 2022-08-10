@@ -42,7 +42,7 @@
       console.error('Chat socket closed unexpectedly');
   };
   NotificationSocket.onmessage = function(e) {
-    var data = JSON.parse(e.data);      
+    var data = JSON.parse(e.data);        
     $('.navmessagecount').addClass('bg-danger')
     var messagecount=Number($('.navmessagecount').text()) + data.counter
     $('.navmessagecount').text(messagecount)     
@@ -58,8 +58,6 @@
     }
     }
     else{      
-
-      
       $('.navmessagecount').addClass('bg-danger')
       var messagecount=Number($('.navmessagecount').text()) + data.counter
       $('.navmessagecount').text(messagecount)   
