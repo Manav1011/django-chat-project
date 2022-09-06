@@ -166,7 +166,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'ecommerce.django.manavshah@gmail.com'
-EMAIL_HOST_PASSWORD = 'pxapqaejuyniypow'
+EMAIL_HOST_PASSWORD = 'kqlaoghdlkktfdde'
 
 LOGIN_URL='account_login'
 LOGIN_REDIRECT_URL ='home'
