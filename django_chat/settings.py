@@ -11,9 +11,16 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import dotenv
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+envvar=BASE_DIR.joinpath('.env')
+if os.path.isfile(envvar):
+    dotenv.load_dotenv(envvar)
 
 
 # Quick-start development settings - unsuitable for production
@@ -25,7 +32,7 @@ SECRET_KEY = 'django-insecure-#^6t42r@jorvr^^%u#x$k22sshad+ehseb7lnz&rq+p4@nw2&$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.6','192.168.0.102','127.0.0.1','localhost']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -120,6 +127,10 @@ DATABASES = {
     }
 }
 
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -156,10 +167,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS=[
-    BASE_DIR.joinpath('static')
-]
+# STATICFILES_DIRS=[
+#     BASE_DIR.joinpath('static')
+# ]
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
