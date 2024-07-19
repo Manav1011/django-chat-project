@@ -8,7 +8,7 @@ https://docs.djangoproject.com/en/4.0/howto/deployment/asgi/
 """
 
 import os
-# import django
+import django
 
 
 from channels.auth import AuthMiddlewareStack
@@ -18,7 +18,7 @@ from channels.sessions import SessionMiddlewareStack
 import accounts.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_chat.settings')
-# django.setup()
+django.setup()
 
 django_asgi_app = get_asgi_application()
 app=ProtocolTypeRouter({
