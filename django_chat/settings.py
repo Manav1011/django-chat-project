@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-#^6t42r@jorvr^^%u#x$k22sshad+ehseb7lnz&rq+p4@nw2&$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['manavshah-django-chat.herokuapp.com','127.0.0.1']
+ALLOWED_HOSTS = ['manavshah-django-chat.herokuapp.com','127.0.0.1','.vercel.app','localhost']
 
 
 # Application definition
@@ -54,18 +54,14 @@ ACCOUNT_EMAIL_REQUIRED=True
 ACCOUNT_EMAIL_VERIFICATION='mandatory'
 ACCOUNT_AUTHENTICATION_METHOD=('username_email')
 
-ASGI_APPLICATION='django_chat.asgi.application'
+ASGI_APPLICATION='django_chat.asgi.app'
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts":[('redis://:iWy9eAbJUK8ogoINYgIxYJlEsqMdZan4@redis-14144.c264.ap-south-1-1.ec2.cloud.redislabs.com:14144/0')],
-        },
-    },
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
 }
-
 INSTALLED_APPS = [
-    'channels',
+    'daphne',    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -89,6 +85,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware'
 ]
 
 ROOT_URLCONF = 'django_chat.urls'
@@ -127,9 +124,6 @@ DATABASES = {
     }
 }
 
-import dj_database_url
-db_from_env = dj_database_url.config(conn_max_age=600)
-DATABASES['default'].update(db_from_env)
 
 
 # Password validation
@@ -167,18 +161,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
-# STATICFILES_DIRS=[
-#     BASE_DIR.joinpath('static')
-# ]
+STATICFILES_DIRS=[
+    BASE_DIR.joinpath('static')
+]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'ecommerce.django.manavshah@gmail.com'
-EMAIL_HOST_PASSWORD = 'kqlaoghdlkktfdde'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 LOGIN_URL='account_login'
 LOGIN_REDIRECT_URL ='home'
