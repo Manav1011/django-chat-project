@@ -28,7 +28,7 @@
     var userforgroup=`{{request.user.username | remove_unnecessary}}`
     var user=`{{request.user}}`
     const NotificationSocket=new WebSocket(
-      'ws://'
+      'wss://'
       + window.location.host
       + '/ws/'      
       +userforgroup

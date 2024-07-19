@@ -51,7 +51,7 @@
         var RoomId=Number(`{{qs.id}}`)
         var sender=`{{request.user.username}}`    
         const GroupChatSocket = new WebSocket(
-            'ws://'
+            'wss://'
             + window.location.host
             + '/ws/group_chat/'
             +`${RoomId}/`

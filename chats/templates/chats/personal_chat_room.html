@@ -62,7 +62,7 @@
         var RoomName=`{{RoomObject.RoomName | remove_unnecessary}}`
         console.log(RoomName)
         const chatSocket = new WebSocket(
-            'ws://'
+            'wss://'
             + window.location.host
             + '/ws/chat/'
             +`{{RoomObject.RoomName}}/`
