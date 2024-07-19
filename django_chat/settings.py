@@ -125,7 +125,7 @@ DATABASES = {
 }
 import dj_database_url
 DATABASES['default'] = dj_database_url.config(
-    default='postgres://bbkzdytw:YsvAVaUJuLP4fqzTaT5Ndx1MIAzyiyeU@isabelle.db.elephantsql.com/bbkzdytw',
+    default='postgres://default:8G5gfjZQIrHN@ep-floral-violet-a4skbm56.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require',
     conn_max_age=600,
     conn_health_checks=True,
 )
